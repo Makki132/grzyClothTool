@@ -124,7 +124,7 @@ public class GDrawable : INotifyPropertyChanged
     public string DisplayNumber => (Number % GlobalConstants.MAX_DRAWABLES_IN_ADDON).ToString("D3");
     
     /// <summary>
-    /// Formatted display name with gender indicator and texture number
+    /// Formatted display name with gender indicator and drawable number
     /// Example: p_head_000 (F: 0) or p_head_000 (M: 5)
     /// </summary>
     [JsonIgnore]
@@ -133,9 +133,8 @@ public class GDrawable : INotifyPropertyChanged
         get
         {
             string genderInitial = Sex == Enums.SexType.female ? "F" : "M";
-            // Count the texture number within this drawable (0-indexed)
-            int textureCount = Textures != null ? Textures.Count : 0;
-            return textureCount > 0 ? $"{Name} ({genderInitial}: {textureCount})" : $"{Name} ({genderInitial}: 0)";
+            // Use the drawable number (DisplayNumber property)
+            return $"{Name} ({genderInitial}: {DisplayNumber})";
         }
     }
 
