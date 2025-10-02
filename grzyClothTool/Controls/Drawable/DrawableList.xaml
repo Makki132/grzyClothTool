@@ -309,7 +309,7 @@
                                                                                                     
                                                                                                     <!-- Gender Count Display -->
                                                                                                     <TextBlock Grid.Column="3" 
-                                                                                                               Text="{Binding Path=Content.Items, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource GenderCountConverter}}"
+                                                                                                               Text="{Binding Path=Content.Items, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type GroupItem}}, Converter={StaticResource GenderCountConverter}}"
                                                                                                                FontSize="11" 
                                                                                                                Foreground="{DynamicResource Brush600}" 
                                                                                                                VerticalAlignment="Center" 
