@@ -67,6 +67,8 @@
                     ToolTipService.InitialShowDelay="0" 
                     HorizontalContentAlignment="Center" 
                     VerticalContentAlignment="Center" 
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
                     FontSize="{Binding FontSize, ElementName=MyCustomButton}" 
                     Click="Button_Click" 
                     Style="{StaticResource RoundedButton}"
