@@ -53,6 +53,7 @@ namespace grzyClothTool
             _navigationHelper.RegisterPage("Settings", () => new SettingsWindow());
 
             DataContext = _navigationHelper;
+            _navigationHelper.PageChanged += OnPageChanged;
             _navigationHelper.Navigate("Home");
             
             // Initialize version display
@@ -83,6 +84,25 @@ namespace grzyClothTool
 
                 await App.splashScreen.LoadComplete();
             }));
+        }
+
+        private void OnPageChanged(object sender, string pageKey)
+        {
+            // Show/hide UI elements based on whether user is on Home page or has a project open
+            bool isProjectPage = pageKey == "Project";
+            
+            this.Dispatcher.Invoke(() =>
+            {
+                // Bottom toolbar buttons
+                previewButton.Visibility = isProjectPage ? Visibility.Visible : Visibility.Collapsed;
+                errorListButton.Visibility = isProjectPage ? Visibility.Visible : Visibility.Collapsed;
+                settingsButton.Visibility = isProjectPage ? Visibility.Visible : Visibility.Collapsed;
+                buildButton.Visibility = isProjectPage ? Visibility.Visible : Visibility.Collapsed;
+                
+                // Top menu items
+                optionsMenu.Visibility = isProjectPage ? Visibility.Visible : Visibility.Collapsed;
+                viewMenu.Visibility = isProjectPage ? Visibility.Visible : Visibility.Collapsed;
+            });
         }
 
         private void ProgressHelper_ProgressStatusChanged(object sender, ProgressMessageEventArgs e)
@@ -177,6 +197,7 @@ namespace grzyClothTool
 
                 ProgressHelper.Stop("Addon loaded in {0}", true);
                 SaveHelper.SetUnsavedChanges(true);
+                _navigationHelper.Navigate("Project");
             }
         }
 
@@ -249,11 +270,12 @@ namespace grzyClothTool
 
                 foreach (var metaFile in metaFiles)
                 {
-                    await AddonManager.LoadAddon(metaFile);
+                await AddonManager.LoadAddon(metaFile, shouldSetProjectName);
                 }
 
                 ProgressHelper.Stop("Project imported in {0}", true);
                 SaveHelper.SetUnsavedChanges(true);
+                _navigationHelper.Navigate("Project");
             }
         }
 

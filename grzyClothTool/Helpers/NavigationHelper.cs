@@ -25,6 +25,7 @@ public class NavigationHelper : INotifyPropertyChanged
     private readonly Dictionary<string, UserControl> _pages = [];
 
     public event PropertyChangedEventHandler PropertyChanged;
+    public event EventHandler<string> PageChanged;
 
     private UserControl _currentPage;
     public UserControl CurrentPage
@@ -66,6 +67,7 @@ public class NavigationHelper : INotifyPropertyChanged
             }
 
             MainWindow.Instance.MainWindowContentControl.Content = page;
+            PageChanged?.Invoke(this, pageKey);
         }
     }
 }

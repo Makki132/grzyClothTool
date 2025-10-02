@@ -91,7 +91,7 @@
                 </MenuItem>
                 
                 <!-- Options Menu -->
-                <MenuItem Header="Options" Padding="10,4">
+                <MenuItem x:Name="optionsMenu" Header="Options" Padding="10,4" Visibility="Collapsed">
                     <MenuItem Header="Settings" Tag="Settings" Click="Navigation_Click">
                         <MenuItem.Icon>
                             <icons:MaterialIcon Kind="Cog" Width="16" Height="16" />
@@ -100,7 +100,7 @@
                 </MenuItem>
                 
                 <!-- View Menu -->
-                <MenuItem Header="View" Padding="10,4">
+                <MenuItem x:Name="viewMenu" Header="View" Padding="10,4" Visibility="Collapsed">
                     <MenuItem Header="Error List" Click="ErrorList_Click">
                         <MenuItem.Icon>
                             <icons:MaterialIcon Kind="AlertCircleOutline" Width="16" Height="16" />
@@ -157,7 +157,7 @@
             <!-- Action Buttons (Right) -->
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
                 <!-- 3D Preview Button -->
-                <Button x:Name="previewButton" Click="Preview_Click" Style="{StaticResource ModernButton}" Padding="8,4" Margin="0,0,4,0" ToolTip="3D Preview">
+                <Button x:Name="previewButton" Click="Preview_Click" Style="{StaticResource ModernButton}" Padding="8,4" Margin="0,0,4,0" ToolTip="3D Preview" Visibility="Collapsed">
                     <StackPanel Orientation="Horizontal">
                         <icons:MaterialIcon Kind="CubeOutline" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,4,0" />
                         <TextBlock Text="3D Preview" VerticalAlignment="Center" FontSize="12" />
@@ -165,7 +165,7 @@
                 </Button>
                 
                 <!-- Error List Button with Badge -->
-                <Button x:Name="errorListButton" Click="ErrorList_Click" Style="{StaticResource ModernButton}" Padding="8,4" Margin="0,0,4,0" ToolTip="Error List">
+                <Button x:Name="errorListButton" Click="ErrorList_Click" Style="{StaticResource ModernButton}" Padding="8,4" Margin="0,0,4,0" ToolTip="Error List" Visibility="Collapsed">
                     <Grid>
                         <StackPanel Orientation="Horizontal">
                             <icons:MaterialIcon Kind="AlertCircleOutline" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,4,0" />
@@ -181,7 +181,7 @@
                 </Button>
                 
                 <!-- Settings Button -->
-                <Button x:Name="settingsButton" Click="Settings_Click" Style="{StaticResource ModernButton}" Padding="8,4" Margin="0,0,4,0" ToolTip="Settings">
+                <Button x:Name="settingsButton" Click="Settings_Click" Style="{StaticResource ModernButton}" Padding="8,4" Margin="0,0,4,0" ToolTip="Settings" Visibility="Collapsed">
                     <StackPanel Orientation="Horizontal">
                         <icons:MaterialIcon Kind="Cog" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,4,0" />
                         <TextBlock Text="Settings" VerticalAlignment="Center" FontSize="12" />
@@ -189,7 +189,7 @@
                 </Button>
                 
                 <!-- Build Project Button -->
-                <Button x:Name="buildButton" Click="BuildProject_Click" Style="{StaticResource AccentButton}" Padding="8,4" ToolTip="Build Project">
+                <Button x:Name="buildButton" Click="BuildProject_Click" Style="{StaticResource AccentButton}" Padding="8,4" ToolTip="Build Project" Visibility="Collapsed">
                     <StackPanel Orientation="Horizontal">
                         <icons:MaterialIcon Kind="Hammer" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,4,0" />
                         <TextBlock Text="Build project" VerticalAlignment="Center" FontSize="12" />
