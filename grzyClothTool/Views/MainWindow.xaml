@@ -90,15 +90,6 @@
                     </MenuItem>
                 </MenuItem>
                 
-                <!-- Options Menu -->
-                <MenuItem x:Name="optionsMenu" Header="Options" Padding="10,4" Visibility="Collapsed">
-                    <MenuItem Header="Settings" Tag="Settings" Click="Navigation_Click">
-                        <MenuItem.Icon>
-                            <icons:MaterialIcon Kind="Cog" Width="16" Height="16" />
-                        </MenuItem.Icon>
-                    </MenuItem>
-                </MenuItem>
-                
                 <!-- View Menu -->
                 <MenuItem x:Name="viewMenu" Header="View" Padding="10,4" Visibility="Collapsed">
                     <MenuItem Header="Error List" Click="ErrorList_Click">

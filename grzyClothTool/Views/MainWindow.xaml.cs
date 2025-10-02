@@ -100,7 +100,6 @@ namespace grzyClothTool
                 buildButton.Visibility = isProjectPage ? Visibility.Visible : Visibility.Collapsed;
                 
                 // Top menu items
-                optionsMenu.Visibility = isProjectPage ? Visibility.Visible : Visibility.Collapsed;
                 viewMenu.Visibility = isProjectPage ? Visibility.Visible : Visibility.Collapsed;
             });
         }
