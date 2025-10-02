@@ -106,8 +106,17 @@ namespace grzyClothTool.Controls
         {
             Button clickedBtn = sender as Button;
 
-            BtnClickEventArgs args = new(BtnClickEvent);
-            RaiseEvent(args);
+            // If dropdown is enabled, toggle the dropdown instead of raising the click event
+            if (DropdownEnabled)
+            {
+                DropdownToggle.IsChecked = !DropdownToggle.IsChecked;
+            }
+            else
+            {
+                // Only raise the click event if dropdown is not enabled
+                BtnClickEventArgs args = new(BtnClickEvent);
+                RaiseEvent(args);
+            }
         }
 
         public class BtnClickEventArgs(RoutedEvent routedEvent) : RoutedEventArgs(routedEvent)
