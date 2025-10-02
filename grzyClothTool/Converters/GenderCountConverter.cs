@@ -1,5 +1,6 @@
 using grzyClothTool.Models.Drawable;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -14,11 +15,12 @@ namespace grzyClothTool.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is IEnumerable<object> items)
+            // Handle both IEnumerable<object> and ReadOnlyObservableCollection from CollectionViewGroup
+            if (value is IEnumerable items)
             {
                 var drawables = items.OfType<GDrawable>().ToList();
                 
-                // Count males (Sex = 0) and females (Sex = 1)
+                // Count males (Sex = male = 1) and females (Sex = female = 0)
                 int maleCount = drawables.Count(d => d.Sex == Enums.SexType.male);
                 int femaleCount = drawables.Count(d => d.Sex == Enums.SexType.female);
                 
