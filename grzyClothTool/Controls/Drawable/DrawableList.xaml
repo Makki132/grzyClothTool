@@ -11,25 +11,23 @@
              mc:Ignorable="d">
 
     <UserControl.Resources>
-        <!-- Import converter namespace -->
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary>
                     <local:GenderCountConverter x:Key="GenderCountConverter" xmlns:local="clr-namespace:grzyClothTool.Converters" />
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-        
-        <!-- CollectionViewSource for grouping and sorting -->
-        <CollectionViewSource x:Key="GroupedDrawables" Source="{Binding ItemsSource, ElementName=MyDrawableList}">
-            <CollectionViewSource.GroupDescriptions>
-                <PropertyGroupDescription PropertyName="TypeName" />
-            </CollectionViewSource.GroupDescriptions>
-            <CollectionViewSource.SortDescriptions>
-                <!-- Sort by Sex in descending order (Female=1 first, then Male=0) -->
-                <scm:SortDescription PropertyName="Sex" Direction="Descending" xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase" />
-            </CollectionViewSource.SortDescriptions>
-        </CollectionViewSource>
+            
+            <!-- CollectionViewSource for grouping and sorting -->
+            <CollectionViewSource x:Key="GroupedDrawables" Source="{Binding ItemsSource, ElementName=MyDrawableList}">
+                <CollectionViewSource.GroupDescriptions>
+                    <PropertyGroupDescription PropertyName="TypeName" />
+                </CollectionViewSource.GroupDescriptions>
+                <CollectionViewSource.SortDescriptions>
+                    <!-- Sort by Sex in descending order (Female=1 first, then Male=0) -->
+                    <scm:SortDescription PropertyName="Sex" Direction="Descending" xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase" />
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
         <ContextMenu x:Key="SingleSelectionContextMenu">
             <MenuItem IsEnabled="False" Header="Optimize embedded textures" Click="OptimizeTexture_Click" />
             <MenuItem Header="Delete" Click="DeleteDrawable_Click" />
@@ -177,6 +175,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <AdornerDecorator>
