@@ -59,9 +59,9 @@
     </UserControl.Resources>
 
 
-    <Grid>
+    <Grid Margin="0">
         <!-- Main button container -->
-        <Border x:Name="btn" BorderThickness="0" CornerRadius="3">
+        <Border x:Name="btn" BorderThickness="0" CornerRadius="3" Margin="0">
             <!-- Main button that triggers dropdown when DropdownEnabled is true -->
             <Button Content="{Binding Label, ElementName=MyCustomButton}" 
                     ToolTip="{Binding Tooltip, ElementName=MyCustomButton}" 
