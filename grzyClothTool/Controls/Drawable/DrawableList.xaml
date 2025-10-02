@@ -24,8 +24,9 @@
                     <PropertyGroupDescription PropertyName="TypeName" />
                 </CollectionViewSource.GroupDescriptions>
                 <CollectionViewSource.SortDescriptions>
-                    <!-- Sort by Sex in descending order (Female=1 first, then Male=0) -->
+                    <!-- Sort by Sex in descending order (Female=1 first, then Male=0), then by Number ascending -->
                     <scm:SortDescription PropertyName="Sex" Direction="Descending" xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase" />
+                    <scm:SortDescription PropertyName="Number" Direction="Ascending" xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase" />
                 </CollectionViewSource.SortDescriptions>
             </CollectionViewSource>
         <ContextMenu x:Key="SingleSelectionContextMenu">
@@ -133,7 +134,7 @@
                                             </icons:MaterialIcon.Style>
                                         </icons:MaterialIcon>
                                     </ContentControl>
-                                    <TextBlock Padding="5, 0, 0, 0" Text="{Binding FormattedDisplayName, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                    <TextBlock Padding="5, 0, 0, 0" Foreground="{DynamicResource Brush950}" Text="{Binding FormattedDisplayName, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right">
                                     <Rectangle x:Name="ReservedDot" Width="13" Margin="0, 2, 4, 0" HorizontalAlignment="Right" ToolTip="Reserved drawable" ToolTipService.InitialShowDelay="0">
