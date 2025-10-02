@@ -132,21 +132,23 @@
             </Button>
 
             <!-- Add Male Button with Dropdown -->
-            <c:CustomButton Grid.Column="2" Label="Add Male" MyBtnClickEvent="Add_DrawableFile" Tag="MALE"
-                            Padding="8,4" Margin="0,0,4,0" Height="28" MinWidth="100" CornerRadius="4" FontSize="12" DropdownEnabled="True">
+            <c:CustomButton Grid.Column="2" Label="Add Male" Tag="MALE"
+                            Padding="12,6" Margin="0,0,4,0" MinHeight="28" MinWidth="120" CornerRadius="3" FontSize="13" DropdownEnabled="True">
                 <c:CustomButton.DropdownContent>
                     <StackPanel>
-                        <c:CustomButton Tag="MALE" Label="Select Folder" CornerRadius="4" Margin="0" FontSize="12" MyBtnClickEvent="Add_DrawableFolder" />
+                        <c:CustomButton Tag="MALE" Label="Add file(s)" CornerRadius="3" Margin="2" Padding="12,6" MinHeight="28" FontSize="13" MyBtnClickEvent="Add_DrawableFile" />
+                        <c:CustomButton Tag="MALE" Label="Add folder" CornerRadius="3" Margin="2" Padding="12,6" MinHeight="28" FontSize="13" MyBtnClickEvent="Add_DrawableFolder" />
                     </StackPanel>
                 </c:CustomButton.DropdownContent>
             </c:CustomButton>
 
             <!-- Add Female Button with Dropdown -->
-            <c:CustomButton Grid.Column="3" Label="Add Female" MyBtnClickEvent="Add_DrawableFile" Tag="FEMALE"
-                            Padding="8,4" Margin="0,0,4,0" Height="28" MinWidth="110" CornerRadius="4" FontSize="12" DropdownEnabled="True">
+            <c:CustomButton Grid.Column="3" Label="Add Female" Tag="FEMALE"
+                            Padding="12,6" Margin="0,0,4,0" MinHeight="28" MinWidth="130" CornerRadius="3" FontSize="13" DropdownEnabled="True">
                 <c:CustomButton.DropdownContent>
                     <StackPanel>
-                        <c:CustomButton Tag="FEMALE" Label="Select Folder" CornerRadius="4" Margin="0" FontSize="12" MyBtnClickEvent="Add_DrawableFolder" />
+                        <c:CustomButton Tag="FEMALE" Label="Add file(s)" CornerRadius="3" Margin="2" Padding="12,6" MinHeight="28" FontSize="13" MyBtnClickEvent="Add_DrawableFile" />
+                        <c:CustomButton Tag="FEMALE" Label="Add folder" CornerRadius="3" Margin="2" Padding="12,6" MinHeight="28" FontSize="13" MyBtnClickEvent="Add_DrawableFolder" />
                     </StackPanel>
                 </c:CustomButton.DropdownContent>
             </c:CustomButton>
