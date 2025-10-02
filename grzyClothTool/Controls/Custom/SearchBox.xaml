@@ -1,0 +1,67 @@
+﻿<UserControl x:Class="grzyClothTool.Controls.SearchBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:icons="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
+             x:Name="MySearchBox"
+             mc:Ignorable="d" 
+             d:DesignHeight="30" d:DesignWidth="300">
+    <Border Background="{DynamicResource Brush100}" 
+            BorderBrush="{DynamicResource Brush300}" 
+            BorderThickness="1" 
+            CornerRadius="3">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- TextBox -->
+            <TextBox x:Name="searchTextBox" 
+                     Grid.Column="0"
+                     Background="Transparent" 
+                     BorderThickness="0" 
+                     Foreground="{DynamicResource Brush950}"
+                     Padding="8,6" 
+                     VerticalContentAlignment="Center"
+                     TextChanged="SearchTextBox_TextChanged" 
+                     GotFocus="SearchTextBox_GotFocus"
+                     LostFocus="SearchTextBox_LostFocus"/>
+
+            <!-- Placeholder Text -->
+            <TextBlock x:Name="placeholderText" 
+                       Grid.Column="0"
+                       Text="{Binding PlaceholderText, ElementName=MySearchBox}" 
+                       Foreground="{DynamicResource Brush500}" 
+                       IsHitTestVisible="False"
+                       Padding="10,6,8,6" 
+                       VerticalAlignment="Center"
+                       Visibility="Visible" />
+
+            <!-- Clear Button -->
+            <Button x:Name="clearButton" 
+                    Grid.Column="1"
+                    Width="24" 
+                    Height="24"
+                    Background="Transparent" 
+                    BorderThickness="0" 
+                    Cursor="Hand"
+                    Visibility="Collapsed" 
+                    Click="ClearButton_Click"
+                    Margin="0,0,4,0">
+                <icons:MaterialIcon Kind="Close" Width="14" Height="14" Foreground="{DynamicResource Brush700}" />
+            </Button>
+
+            <!-- Search Icon -->
+            <icons:MaterialIcon Grid.Column="2" 
+                                Kind="Magnify" 
+                                Width="16" 
+                                Height="16" 
+                                Foreground="{DynamicResource Brush600}" 
+                                VerticalAlignment="Center"
+                                Margin="0,0,8,0" />
+        </Grid>
+    </Border>
+</UserControl>

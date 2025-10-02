@@ -1,0 +1,67 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Shared.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- Main background colors -->
+    <Color x:Key="Color50">#1E1E1E</Color>
+    <Color x:Key="Color100">#252526</Color>
+    <Color x:Key="Color200">#2D2D30</Color>
+    <Color x:Key="Color300">#3E3E42</Color>
+    <Color x:Key="Color400">#4D4D50</Color>
+    <Color x:Key="Color500">#6B6B6B</Color>
+    <Color x:Key="Color600">#858585</Color>
+    <Color x:Key="Color700">#A0A0A0</Color>
+    <Color x:Key="Color800">#CCCCCC</Color>
+    <Color x:Key="Color900">#E8E8E8</Color>
+    <Color x:Key="Color950">#FFFFFF</Color>
+    
+    <!-- Accent colors -->
+    <Color x:Key="AccentBlue">#007ACC</Color>
+    <Color x:Key="AccentBlueHover">#1C97EA</Color>
+    <Color x:Key="AccentBluePressed">#005A9E</Color>
+    
+    <!-- Status colors -->
+    <Color x:Key="ErrorRed">#F14C4C</Color>
+    <Color x:Key="WarningOrange">#CCA700</Color>
+    <Color x:Key="SuccessGreen">#89D185</Color>
+    <Color x:Key="InfoBlue">#3794FF</Color>
+    
+    <!-- Gender colors -->
+    <Color x:Key="MaleBlue">#4A90E2</Color>
+    <Color x:Key="FemalePink">#E91E63</Color>
+
+    <SolidColorBrush x:Key="Brush50" Color="{StaticResource Color50}" />
+    <SolidColorBrush x:Key="Brush100" Color="{StaticResource Color100}" />
+    <SolidColorBrush x:Key="Brush200" Color="{StaticResource Color200}" />
+    <SolidColorBrush x:Key="Brush300" Color="{StaticResource Color300}" />
+    <SolidColorBrush x:Key="Brush400" Color="{StaticResource Color400}" />
+    <SolidColorBrush x:Key="Brush500" Color="{StaticResource Color500}" />
+    <SolidColorBrush x:Key="Brush600" Color="{StaticResource Color600}" />
+    <SolidColorBrush x:Key="Brush700" Color="{StaticResource Color700}" />
+    <SolidColorBrush x:Key="Brush800" Color="{StaticResource Color800}" />
+    <SolidColorBrush x:Key="Brush900" Color="{StaticResource Color900}" />
+    <SolidColorBrush x:Key="Brush950" Color="{StaticResource Color950}" />
+
+    <SolidColorBrush x:Key="White" Color="White" />
+    <SolidColorBrush x:Key="Black" Color="Black" />
+
+    <!-- Accent brushes -->
+    <SolidColorBrush x:Key="AccentBlueBrush" Color="{StaticResource AccentBlue}" />
+    <SolidColorBrush x:Key="AccentBlueHoverBrush" Color="{StaticResource AccentBlueHover}" />
+    <SolidColorBrush x:Key="AccentBluePressedBrush" Color="{StaticResource AccentBluePressed}" />
+    
+    <!-- Status brushes -->
+    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorRed}" />
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningOrange}" />
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessGreen}" />
+    <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoBlue}" />
+    
+    <!-- Gender brushes -->
+    <SolidColorBrush x:Key="MaleBrush" Color="{StaticResource MaleBlue}" />
+    <SolidColorBrush x:Key="FemaleBrush" Color="{StaticResource FemalePink}" />
+
+    <SolidColorBrush x:Key="GroupBoxBorder" Color="{StaticResource Color300}" />
+</ResourceDictionary>
