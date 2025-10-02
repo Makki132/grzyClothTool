@@ -11,11 +11,24 @@
              mc:Ignorable="d">
 
     <UserControl.Resources>
-        <!-- CollectionViewSource for grouping -->
+        <!-- Import converter namespace -->
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+                    <local:GenderCountConverter x:Key="GenderCountConverter" xmlns:local="clr-namespace:grzyClothTool.Converters" />
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+        
+        <!-- CollectionViewSource for grouping and sorting -->
         <CollectionViewSource x:Key="GroupedDrawables" Source="{Binding ItemsSource, ElementName=MyDrawableList}">
             <CollectionViewSource.GroupDescriptions>
                 <PropertyGroupDescription PropertyName="TypeName" />
             </CollectionViewSource.GroupDescriptions>
+            <CollectionViewSource.SortDescriptions>
+                <!-- Sort by Sex in descending order (Female=1 first, then Male=0) -->
+                <scm:SortDescription PropertyName="Sex" Direction="Descending" xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase" />
+            </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
         <ContextMenu x:Key="SingleSelectionContextMenu">
             <MenuItem IsEnabled="False" Header="Optimize embedded textures" Click="OptimizeTexture_Click" />
@@ -122,7 +135,7 @@
                                             </icons:MaterialIcon.Style>
                                         </icons:MaterialIcon>
                                     </ContentControl>
-                                    <TextBlock Padding="5, 0, 0, 0" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                    <TextBlock Padding="5, 0, 0, 0" Text="{Binding FormattedDisplayName, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right">
                                     <Rectangle x:Name="ReservedDot" Width="13" Margin="0, 2, 4, 0" HorizontalAlignment="Right" ToolTip="Reserved drawable" ToolTipService.InitialShowDelay="0">
@@ -294,18 +307,13 @@
                                                                                                                Foreground="{DynamicResource Brush950}" 
                                                                                                                VerticalAlignment="Center"/>
                                                                                                     
-                                                                                                    <!-- Item Count -->
+                                                                                                    <!-- Gender Count Display -->
                                                                                                     <TextBlock Grid.Column="3" 
+                                                                                                               Text="{Binding Items, Converter={StaticResource GenderCountConverter}}"
                                                                                                                FontSize="11" 
                                                                                                                Foreground="{DynamicResource Brush600}" 
                                                                                                                VerticalAlignment="Center" 
-                                                                                                               Margin="0,0,12,0">
-                                                                                                        <TextBlock.Text>
-                                                                                                            <MultiBinding StringFormat="({0})">
-                                                                                                                <Binding Path="ItemCount"/>
-                                                                                                            </MultiBinding>
-                                                                                                        </TextBlock.Text>
-                                                                                                    </TextBlock>
+                                                                                                               Margin="0,0,12,0"/>
                                                                                                 </Grid>
                                                                                             </Border>
                                                                                             <ControlTemplate.Triggers>
