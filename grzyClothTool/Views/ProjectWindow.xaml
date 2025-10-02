@@ -103,7 +103,7 @@
         </GroupBox>
 
         <!-- Bottom Action Bar -->
-        <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Background="{DynamicResource Brush100}">
+        <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Background="{DynamicResource Brush100}" Height="36">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
@@ -133,7 +133,7 @@
 
             <!-- Add Male Button with Dropdown -->
             <c:CustomButton Grid.Column="2" Label="Add Male" MyBtnClickEvent="Add_DrawableFile" Tag="MALE"
-                            Padding="8,4" Margin="0,0,4,0" Height="28" CornerRadius="4" FontSize="12" DropdownEnabled="True">
+                            Padding="8,4" Margin="0,0,4,0" Height="28" MinWidth="100" CornerRadius="4" FontSize="12" DropdownEnabled="True">
                 <c:CustomButton.DropdownContent>
                     <StackPanel>
                         <c:CustomButton Tag="MALE" Label="Select Folder" CornerRadius="4" Margin="0" FontSize="12" MyBtnClickEvent="Add_DrawableFolder" />
@@ -143,7 +143,7 @@
 
             <!-- Add Female Button with Dropdown -->
             <c:CustomButton Grid.Column="3" Label="Add Female" MyBtnClickEvent="Add_DrawableFile" Tag="FEMALE"
-                            Padding="8,4" Margin="0,0,4,0" Height="28" CornerRadius="4" FontSize="12" DropdownEnabled="True">
+                            Padding="8,4" Margin="0,0,4,0" Height="28" MinWidth="110" CornerRadius="4" FontSize="12" DropdownEnabled="True">
                 <c:CustomButton.DropdownContent>
                     <StackPanel>
                         <c:CustomButton Tag="FEMALE" Label="Select Folder" CornerRadius="4" Margin="0" FontSize="12" MyBtnClickEvent="Add_DrawableFolder" />

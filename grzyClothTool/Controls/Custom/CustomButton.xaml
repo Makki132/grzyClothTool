@@ -95,35 +95,45 @@
     <Grid>
         <!-- Main button container -->
         <Border x:Name="btn" BorderThickness="0" CornerRadius="3">
-            <Button Content="{Binding Label, ElementName=MyCustomButton}" 
-                    ToolTip="{Binding Tooltip, ElementName=MyCustomButton}" 
-                    ToolTipService.InitialShowDelay="0" 
-                    HorizontalContentAlignment="Center" 
-                    VerticalContentAlignment="Center" 
-                    FontSize="{Binding FontSize, ElementName=MyCustomButton}" 
-                    Click="Button_Click" 
-                    Style="{StaticResource RoundedButton}">
-                <Button.ContentTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding}" />
-                    </DataTemplate>
-                </Button.ContentTemplate>
-            </Button>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                
+                <!-- Main button -->
+                <Button Grid.Column="0"
+                        Content="{Binding Label, ElementName=MyCustomButton}" 
+                        ToolTip="{Binding Tooltip, ElementName=MyCustomButton}" 
+                        ToolTipService.InitialShowDelay="0" 
+                        HorizontalContentAlignment="Center" 
+                        VerticalContentAlignment="Center" 
+                        FontSize="{Binding FontSize, ElementName=MyCustomButton}" 
+                        Click="Button_Click" 
+                        Style="{StaticResource RoundedButton}"
+                        Padding="{Binding Padding, ElementName=MyCustomButton}">
+                    <Button.ContentTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" TextWrapping="NoWrap" />
+                        </DataTemplate>
+                    </Button.ContentTemplate>
+                </Button>
+                
+                <!-- Dropdown toggle button -->
+                <ToggleButton Grid.Column="1"
+                              Style="{StaticResource ToggleButtonVisibility}" 
+                              x:Name="DropdownToggle" 
+                              VerticalAlignment="Stretch" 
+                              Width="24" 
+                              Margin="0">
+                    <Path Data="M 0 0 L 4 4 L 8 0 Z" 
+                          Fill="{DynamicResource Brush950}" 
+                          Width="8" 
+                          Height="5" 
+                          Stretch="Fill" />
+                </ToggleButton>
+            </Grid>
         </Border>
-
-        <!-- Dropdown toggle button -->
-        <ToggleButton Style="{StaticResource ToggleButtonVisibility}" 
-                      x:Name="DropdownToggle" 
-                      HorizontalAlignment="Right" 
-                      VerticalAlignment="Stretch" 
-                      Width="24" 
-                      Margin="0,0,1,0">
-            <Path Data="M 0 0 L 4 4 L 8 0 Z" 
-                  Fill="{DynamicResource Brush950}" 
-                  Width="8" 
-                  Height="5" 
-                  Stretch="Fill" />
-        </ToggleButton>
 
         <!-- Dropdown popup -->
         <Popup Width="{Binding ActualWidth, ElementName=btn}" 
