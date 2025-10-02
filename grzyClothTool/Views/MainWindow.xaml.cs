@@ -442,6 +442,25 @@ namespace grzyClothTool
                 {
                     CWHelper.CWForm = new CodeWalker.CustomPedsForm();
                 }
+
+                var selectedAddon = MainWindow.AddonManager.SelectedAddon;
+                if (selectedAddon?.SelectedDrawable != null)
+                {
+                    // Load the selected drawable
+                    var ydd = CWHelper.CreateYddFile(selectedAddon.SelectedDrawable);
+                    CWHelper.CWForm.LoadedDrawables[selectedAddon.SelectedDrawable.Name] = ydd.Drawables.First();
+
+                    // Load the selected texture if available
+                    if (selectedAddon.SelectedTexture != null)
+                    {
+                        var ytd = CWHelper.CreateYtdFile(selectedAddon.SelectedTexture, selectedAddon.SelectedTexture.DisplayName);
+                        CWHelper.CWForm.LoadedTextures[ydd.Drawables.First()] = ytd.TextureDict;
+                    }
+
+                    // Set the correct ped model based on drawable's sex
+                    CWHelper.SetPedModel(selectedAddon.SelectedDrawable.Sex);
+                }
+
                 CWHelper.CWForm.Show();
                 MainWindow.AddonManager.IsPreviewEnabled = true;
             }
