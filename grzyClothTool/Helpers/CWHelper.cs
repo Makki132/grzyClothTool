@@ -156,37 +156,45 @@ public static class CWHelper
         // Add or update selected drawables and their textures
         foreach (var drawable in selectedDrawables)
         {
-            var ydd = CreateYddFile(drawable);
-            if (ydd == null || ydd.Drawables.Length == 0) continue;
-
-            var firstDrawable = ydd.Drawables.First();
-            CWForm.LoadedDrawables[drawable.Name] = firstDrawable;
-
-            GTexture selectedTexture = MainWindow.AddonManager.SelectedAddon.SelectedTexture;
-            YtdFile ytd = null;
-            if (selectedTexture != null)
+            try
             {
-                ytd = CreateYtdFile(selectedTexture, selectedTexture.DisplayName);
-                CWForm.LoadedTextures[firstDrawable] = ytd.TextureDict;
-            }
+                var ydd = CreateYddFile(drawable);
+                if (ydd == null || ydd.Drawables.Length == 0) continue;
 
-            if (selectedTexture == null && selectedDrawables.Count > 1)
-            {
-                // If multiple drawables are selected, we need to load the first texture of the first drawable
-                // to prevent the preview from being empty
-                var firstTexture = drawable.Textures.FirstOrDefault();
-                if (firstTexture != null)
+                var firstDrawable = ydd.Drawables.First();
+                CWForm.LoadedDrawables[drawable.Name] = firstDrawable;
+
+                GTexture selectedTexture = MainWindow.AddonManager.SelectedAddon.SelectedTexture;
+                YtdFile ytd = null;
+                if (selectedTexture != null)
                 {
-                    ytd = CreateYtdFile(firstTexture, firstTexture.DisplayName);
+                    ytd = CreateYtdFile(selectedTexture, selectedTexture.DisplayName);
                     CWForm.LoadedTextures[firstDrawable] = ytd.TextureDict;
                 }
-            }
 
-            CWForm.UpdateSelectedDrawable(
-                firstDrawable,
-                ytd.TextureDict,
-                updateDict
-            );
+                if (selectedTexture == null && selectedDrawables.Count > 1)
+                {
+                    // If multiple drawables are selected, we need to load the first texture of the first drawable
+                    // to prevent the preview from being empty
+                    var firstTexture = drawable.Textures.FirstOrDefault();
+                    if (firstTexture != null)
+                    {
+                        ytd = CreateYtdFile(firstTexture, firstTexture.DisplayName);
+                        CWForm.LoadedTextures[firstDrawable] = ytd.TextureDict;
+                    }
+                }
+
+                CWForm.UpdateSelectedDrawable(
+                    firstDrawable,
+                    ytd.TextureDict,
+                    updateDict
+                );
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log($"[CWHelper] Error updating drawable {drawable.Name}: {ex.Message}", Views.LogType.Error);
+                // Continue to next drawable instead of crashing
+            }
         }
     }
 }

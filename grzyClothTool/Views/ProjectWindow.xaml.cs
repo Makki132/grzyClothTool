@@ -302,12 +302,27 @@ namespace grzyClothTool.Views
             args.Handled = true;
             Addon.SelectedTexture = (GTexture)args.AddedItems[0];
 
-            if (!MainWindow.AddonManager.IsPreviewEnabled) return;
+            if (!MainWindow.AddonManager.IsPreviewEnabled || Addon.SelectedDrawable == null) return;
 
-            var ytd = CWHelper.CreateYtdFile(Addon.SelectedTexture, Addon.SelectedTexture.DisplayName);
-            var cwydd = CWHelper.CWForm.LoadedDrawables[Addon.SelectedDrawable.Name];
-            CWHelper.CWForm.LoadedTextures[cwydd] = ytd.TextureDict;
-            CWHelper.CWForm.Refresh();
+            try {
+                // First ensure the drawable is loaded
+                if (!CWHelper.CWForm.LoadedDrawables.ContainsKey(Addon.SelectedDrawable.Name)) {
+                    var ydd = CWHelper.CreateYddFile(Addon.SelectedDrawable);
+                    if (ydd != null && ydd.Drawables.Any()) {
+                        CWHelper.CWForm.LoadedDrawables[Addon.SelectedDrawable.Name] = ydd.Drawables.First();
+                    } else {
+                        LogHelper.Log($"Could not create YDD file for {Addon.SelectedDrawable.Name}", Views.LogType.Error);
+                        return;
+                    }
+                }
+
+                var ytd = CWHelper.CreateYtdFile(Addon.SelectedTexture, Addon.SelectedTexture.DisplayName);
+                var cwydd = CWHelper.CWForm.LoadedDrawables[Addon.SelectedDrawable.Name];
+                CWHelper.CWForm.LoadedTextures[cwydd] = ytd.TextureDict;
+                CWHelper.CWForm.Refresh();
+            } catch (Exception ex) {
+                LogHelper.Log($"Error updating texture preview: {ex.Message}", Views.LogType.Error);
+            }
         }
 
         protected void OnPropertyChanged([CallerMemberName] string name = null)
@@ -410,44 +425,80 @@ namespace grzyClothTool.Views
                 {
                     var fileName = Path.GetFileNameWithoutExtension(file).ToLower();
                     
-                    // Detect gender from filename patterns
-                    // Common patterns: _m, _male, ^m_freemode, _f, _female, ^f_freemode
+                    // Detect gender using priority-based detection:
+                    // 1. YDD file contents AND matching YTD files (most reliable)
+                    // 2. Filename patterns
+                    // 3. Parent folder name
+                    // 4. Default to male
                     Enums.SexType detectedGender;
                     
-                    if (fileName.Contains("_m_") || fileName.Contains("_male") || 
-                        fileName.StartsWith("m_") || fileName.EndsWith("_m") ||
-                        fileName.Contains("mp_m_"))
+                    // Find matching texture files for cross-file detection
+                    var (isProp, drawableType, isBodyPart) = Helpers.FileHelper.ResolveDrawableType(file);
+                    if (drawableType == -1) continue;
+                    var drawableName = EnumHelper.GetName(drawableType, isProp, isBodyPart);
+                    var matchingTextures = Helpers.FileHelper.FindMatchingTextures(file, drawableName, isProp);
+                    
+                    // Try YDD file contents + matching YTD files first (most reliable)
+                    var genderFromYdd = await Helpers.GenderDetectionHelper.DetectGenderFromYddAsync(file, matchingTextures);
+                    if (genderFromYdd.HasValue)
                     {
-                        detectedGender = Enums.SexType.male;
-                        maleCount++;
+                        detectedGender = genderFromYdd.Value;
+                        if (detectedGender == Enums.SexType.male)
+                            maleCount++;
+                        else
+                            femaleCount++;
                     }
-                    else if (fileName.Contains("_f_") || fileName.Contains("_female") || 
-                             fileName.StartsWith("f_") || fileName.EndsWith("_f") ||
-                             fileName.Contains("mp_f_"))
-                    {
-                        detectedGender = Enums.SexType.female;
-                        femaleCount++;
-                    }
+                    // Try filename patterns
                     else
                     {
-                        // If no clear gender marker, try to detect from parent folder name
-                        var parentFolder = Path.GetFileName(Path.GetDirectoryName(file))?.ToLower();
-                        if (parentFolder?.Contains("male") == true || parentFolder?.Contains("_m") == true)
+                        var genderFromFilename = Helpers.GenderDetectionHelper.DetectGenderFromFilename(file);
+                        if (genderFromFilename.HasValue)
                         {
-                            detectedGender = Enums.SexType.male;
-                            maleCount++;
-                        }
-                        else if (parentFolder?.Contains("female") == true || parentFolder?.Contains("_f") == true)
-                        {
-                            detectedGender = Enums.SexType.female;
-                            femaleCount++;
+                            detectedGender = genderFromFilename.Value;
+                            if (detectedGender == Enums.SexType.male)
+                                maleCount++;
+                            else
+                                femaleCount++;
                         }
                         else
                         {
-                            // Default to male if no gender detected
-                            LogHelper.Log($"Could not detect gender for '{fileName}', defaulting to male", LogType.Warning);
-                            detectedGender = Enums.SexType.male;
-                            maleCount++;
+                            // Try parent folder name
+                            var parentFolder = Path.GetFileName(Path.GetDirectoryName(file))?.ToLower();
+                            if (parentFolder?.Contains("female") == true || parentFolder?.Contains("_f") == true)
+                            {
+                                detectedGender = Enums.SexType.female;
+                                femaleCount++;
+                            }
+                            else if (parentFolder?.Contains("male") == true || parentFolder?.Contains("_m") == true)
+                            {
+                                detectedGender = Enums.SexType.male;
+                                maleCount++;
+                            }
+                            else
+                            {
+                                // Prompt user with full import configuration dialog
+                                LogHelper.Log($"Could not fully auto-detect properties for '{fileName}', prompting user", LogType.Info);
+                                
+                                var dialog = new Controls.Dialogs.ImportConfigDialog(file)
+                                {
+                                    Owner = Window.GetWindow(this)
+                                };
+                                
+                                if (dialog.ShowDialog() == true && !dialog.Config.WasCancelled)
+                                {
+                                    detectedGender = dialog.Config.Gender;
+                                    if (detectedGender == Enums.SexType.male)
+                                        maleCount++;
+                                    else
+                                        femaleCount++;
+                                }
+                                else // User cancelled
+                                {
+                                    LogHelper.Log($"Import cancelled by user at file '{fileName}'", LogType.Warning);
+                                    ProgressHelper.Stop("Import cancelled by user", false);
+                                    return;
+                                }
+                            }
                         }
                     }
 

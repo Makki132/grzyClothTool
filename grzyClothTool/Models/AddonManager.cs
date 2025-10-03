@@ -292,8 +292,10 @@ namespace grzyClothTool.Models
 
                         if (compInfo.Data.pedXml_expressionMods.f4 != 0)
                         {
+                            var heelValue = compInfo.Data.pedXml_expressionMods.f4 * 10; // Multiply by 10 to convert from YMT scale to UI scale
+                            LogHelper.Log($"[AddonManager] Loading heel height for {drawable.Name}: YMT value={compInfo.Data.pedXml_expressionMods.f4}, UI value={heelValue}", Views.LogType.Info);
                             drawable.EnableHighHeels = true;
-                            drawable.HighHeelsValue = compInfo.Data.pedXml_expressionMods.f4;
+                            drawable.HighHeelsValue = heelValue;
                         }
                     }
 
@@ -318,7 +320,7 @@ namespace grzyClothTool.Models
                     }
                 }
 
-                AddDrawable(drawable);
+                await AddDrawableAsync(drawable);
             }
 
             Addons.Sort(true);
@@ -335,7 +337,7 @@ namespace grzyClothTool.Models
             }
         }
 
-        public void AddDrawable(GDrawable drawable)
+        public async Task AddDrawableAsync(GDrawable drawable)
         {
             int nextNumber = 0;
             int currentAddonIndex = 0;
@@ -381,7 +383,7 @@ namespace grzyClothTool.Models
             // Auto-backup file for crash recovery if enabled
             if (SettingsHelper.Instance.AutoSaveOnClose && File.Exists(drawable.FilePath))
             {
-                _ = Helpers.AutoRecoveryHelper.BackupFileAsync(
+                await Helpers.AutoRecoveryHelper.BackupFileAsync(
                     drawable.FilePath,
                     Path.GetFileName(drawable.FilePath),
                     currentAddon.Name
@@ -389,6 +391,12 @@ namespace grzyClothTool.Models
             }
 
             SaveHelper.SetUnsavedChanges(true);
+        }
+
+        // Keep synchronous version for backwards compatibility
+        public void AddDrawable(GDrawable drawable)
+        {
+            _ = AddDrawableAsync(drawable);
         }
 
         public void DeleteDrawables(List<GDrawable> drawables)

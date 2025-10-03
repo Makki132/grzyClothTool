@@ -27,6 +27,7 @@ public class BuildResourceHelper
     private readonly bool shouldUseNumber = false;
 
     private readonly List<string> firstPersonFiles = [];
+    private readonly List<string> creatureMetadataFiles = []; // Track generated creature metadata files for FiveM manifest
     private BuildResourceType _buildResourceType;
 
     public BuildResourceHelper(string name, string path, IProgress<int> progress, BuildResourceType resourceType, bool splitAddons, int orderValue = 999)
@@ -99,7 +100,37 @@ public class BuildResourceHelper
                 var folderPath = Path.Combine(_buildPath, "stream", genderFolderName, d.TypeName);
                 var prefix = RemoveInvalidChars($"{drawablePedName}_{projectName}^");
                 var finalPath = Path.Combine(folderPath, $"{prefix}{d.Name}{Path.GetExtension(d.FilePath)}");
-                fileOperations.Add(FileHelper.CopyAsync(d.FilePath, finalPath));
+                
+                // For FiveM, modify YDD files to include heel height metadata before copying
+                if (d.EnableHighHeels && d.TypeNumeric == 6)
+                {
+                    fileOperations.Add(Task.Run(async () =>
+                    {
+                        try
+                        {
+                            LogHelper.Log($"[BuildFiveM] Creating YDD for {d.Name}, UI heel value: {d.HighHeelsValue}", Views.LogType.Info);
+                            var ydd = CWHelper.CreateYddFile(d);
+                            var firstDrawable = ydd.Drawables.FirstOrDefault();
+                            if (firstDrawable != null)
+                            {
+                                LogHelper.Log($"[BuildFiveM] YDD drawable heel value after creation: {firstDrawable.HighHeelsValue}, enabled: {firstDrawable.IsHighHeelsEnabled}", Views.LogType.Info);
+                            }
+                            byte[] yddBytes = ydd.Save();
+                            await File.WriteAllBytesAsync(finalPath, yddBytes);
+                            LogHelper.Log($"[BuildFiveM] Saved modified {d.Name} to {finalPath}", Views.LogType.Info);
+                        }
+                        catch (Exception ex)
+                        {
+                            LogHelper.Log($"[BuildFiveM] Error modifying YDD {d.Name}: {ex.Message}", Views.LogType.Error);
+                            // Fallback to copying original file
+                            await FileHelper.CopyAsync(d.FilePath, finalPath);
+                        }
+                    }));
+                }
+                else
+                {
+                    fileOperations.Add(FileHelper.CopyAsync(d.FilePath, finalPath));
+                }
 
                 if (!string.IsNullOrEmpty(d.ClothPhysicsPath))
                 {
@@ -161,12 +192,9 @@ public class BuildResourceHelper
             }
         }
 
-        await Task.Run(() =>
-            {
-                var generated = GenerateCreatureMetadata(drawables);
-                generated?.Save(_buildPath + "/stream/mp_creaturemetadata_" + GetGenderLetter(sex) + "_" + projectName + ".ymt");
-            }
-        );
+        // Note: Creature metadata YMT files are not needed for FiveM
+        // FiveM reads high heels values directly from expressionMods in the main YMT file
+        // Separate creature metadata files are only used in singleplayer
     }
 
     public async Task BuildFiveMResource()
@@ -239,10 +267,21 @@ public class BuildResourceHelper
             filesSectionBuilder.Append($",\n  'first_person_alternates_{_projectName}.meta'");
         }
 
+        if (creatureMetadataFiles.Count > 0)
+        {
+            filesSectionBuilder.Append($",\n  {string.Join(",\n  ", creatureMetadataFiles.Select(f => $"'{f}'"))}");
+        }
+
         contentBuilder.AppendLine($"  {filesSectionBuilder}");
 
         contentBuilder.AppendLine("}");
         contentBuilder.AppendLine();
+
+        // Creature metadata must be loaded BEFORE shop ped apparel for high heels to work
+        foreach (var file in creatureMetadataFiles)
+        {
+            contentBuilder.AppendLine($"data_file 'CREATURE_METADATA_FILE' '{file}'");
+        }
 
         foreach (var file in metaFiles)
         {
@@ -257,8 +296,9 @@ public class BuildResourceHelper
         var finalPath = Path.Combine(_buildPath, "fxmanifest.lua");
         File.WriteAllText(finalPath, contentBuilder.ToString());
 
-        //clear firstPerson files
+        //clear firstPerson files and creature metadata files
         firstPersonFiles.Clear();
+        creatureMetadataFiles.Clear();
     }
 
     #endregion
@@ -773,8 +813,9 @@ public class BuildResourceHelper
         CPed.availComp = availComp;
 
         var allDrawables = _addon.Drawables.Where(x => x.Sex == sex).ToList();
-        var allCompDrawablesArray = allDrawables.Where(x => !x.IsProp).ToArray();
-        var allPropDrawablesArray = allDrawables.Where(x => x.IsProp).ToArray();
+        // Sort by TypeNumeric first, then by Number to ensure correct order in YMT
+        var allCompDrawablesArray = allDrawables.Where(x => !x.IsProp).OrderBy(x => x.TypeNumeric).ThenBy(x => x.Number).ToArray();
+        var allPropDrawablesArray = allDrawables.Where(x => x.IsProp).OrderBy(x => x.TypeNumeric).ThenBy(x => x.Number).ToArray();
 
         var components = new Dictionary<byte, CPVComponentData>();
         for (byte i = 0; i < generatedAvailComp.Length; i++)
@@ -815,7 +856,24 @@ public class BuildResourceHelper
             var drawable = allCompDrawablesArray[i];
             compInfos[i].pedXml_audioID = JenkHash.GenHash(drawable.Audio);
             compInfos[i].pedXml_audioID2 = JenkHash.GenHash("none"); //todo
-            compInfos[i].pedXml_expressionMods = new ArrayOfFloats5 { f0 = 0, f1 = 0, f2 = 0, f3 = 0, f4 = drawable.EnableHighHeels ? drawable.HighHeelsValue : 0 }; //expression mods
+            
+            // Only process and log heel heights for shoes (TypeNumeric == 6)
+            if (drawable.TypeNumeric == 6)
+            {
+                var heelValue = drawable.EnableHighHeels ? drawable.HighHeelsValue / 10 : 0;
+                LogHelper.Log($"[BuildYMT] Shoe {drawable.Name} (compInfos index={i}):", Views.LogType.Info);
+                LogHelper.Log($"  - DrawableNumber: {drawable.Number}", Views.LogType.Info);
+                LogHelper.Log($"  - TypeNumeric: {drawable.TypeNumeric}", Views.LogType.Info);
+                LogHelper.Log($"  - High heels enabled: {drawable.EnableHighHeels}", Views.LogType.Info);
+                LogHelper.Log($"  - UI value: {drawable.HighHeelsValue}", Views.LogType.Info);
+                LogHelper.Log($"  - YMT export value: {heelValue}", Views.LogType.Info);
+                compInfos[i].pedXml_expressionMods = new ArrayOfFloats5 { f0 = 0, f1 = 0, f2 = 0, f3 = 0, f4 = heelValue };
+            }
+            else
+            {
+                compInfos[i].pedXml_expressionMods = new ArrayOfFloats5 { f0 = 0, f1 = 0, f2 = 0, f3 = 0, f4 = 0 };  // No heel height for non-shoes
+            }
+            
             compInfos[i].flags = (uint)drawable.Flags;
             compInfos[i].inclusions = 0;
             compInfos[i].exclusions = 0;
@@ -922,7 +980,8 @@ public class BuildResourceHelper
         MetaXmlBase.StringTag(sb, 4, "dlcName", projectName);
         MetaXmlBase.StringTag(sb, 4, "fullDlcName", pedName + "_" + projectName);
         MetaXmlBase.StringTag(sb, 4, "eCharacter", eCharacter);
-        MetaXmlBase.StringTag(sb, 4, "creatureMetaData", "mp_creaturemetadata_" + genderLetter + "_" + projectName);
+        // Note: creatureMetaData is not needed for FiveM, as high heels are read from expressionMods in YMT
+        // MetaXmlBase.StringTag(sb, 4, "creatureMetaData", "mp_creaturemetadata_" + genderLetter + "_" + projectName);
 
         MetaXmlBase.OpenTag(sb, 4, "pedOutfits");
         MetaXmlBase.CloseTag(sb, 4, "pedOutfits");
@@ -980,7 +1039,7 @@ public class BuildResourceHelper
         XElement pedCompExpressions = new("pedCompExpressions");
         if (shouldGenCreatureHeels)
         {
-            var feetDrawables = drawables.Where(x => x.TypeNumeric == 6 && x.IsComponent);
+            var feetDrawables = drawables.Where(x => x.TypeNumeric == 6 && x.IsComponent && x.EnableHighHeels);
             foreach (var comp in feetDrawables)
             {
                 XElement pedCompItem = new("Item");
@@ -1010,7 +1069,7 @@ public class BuildResourceHelper
             FirstpedPropItem.Add(new XElement("components", new XAttribute("content", "char_array"), 1));
             pedPropExpressions.Add(FirstpedPropItem);
 
-            foreach (var prop in drawables.Where(x => x.TypeNumeric == 0 && x.IsProp))
+            foreach (var prop in drawables.Where(x => x.TypeNumeric == 0 && x.IsProp && x.EnableHairScale))
             {
                 XElement pedPropItem = new("Item");
                 pedPropItem.Add(new XElement("pedPropID", new XAttribute("value", string.Format("0x{0:X}", 0))));
