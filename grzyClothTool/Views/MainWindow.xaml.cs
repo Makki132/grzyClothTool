@@ -83,6 +83,34 @@ namespace grzyClothTool
                 }
 
                 await App.splashScreen.LoadComplete();
+
+                // Check for unclosed recovery sessions (crash recovery)
+                LogHelper.Log($"Auto-save on close setting: {SettingsHelper.Instance.AutoSaveOnClose}");
+                
+                if (SettingsHelper.Instance.AutoSaveOnClose)
+                {
+                    LogHelper.Log("Checking for unclosed recovery sessions...");
+                    var recoverySession = AutoRecoveryHelper.FindUnclosedSession();
+                    
+                    if (recoverySession != null)
+                    {
+                        LogHelper.Log($"Found unclosed session: {recoverySession.SessionId}");
+                        await HandleRecoverySession(recoverySession);
+                    }
+                    else
+                    {
+                        LogHelper.Log("No unclosed sessions found. Starting new session.");
+                        // Start a new session for this run
+                        AutoRecoveryHelper.StartSession();
+                    }
+
+                    // Cleanup old closed sessions
+                    AutoRecoveryHelper.CleanupOldSessions();
+                }
+                else
+                {
+                    LogHelper.Log("Auto-save on close is disabled. Skipping recovery check.");
+                }
             }));
         }
 
@@ -340,22 +368,8 @@ namespace grzyClothTool
             // Check if auto-save on close is enabled
             if (SettingsHelper.Instance.AutoSaveOnClose)
             {
-                // Auto-save if there are unsaved changes
-                if (SaveHelper.HasUnsavedChanges)
-                {
-                    e.Cancel = true; // Cancel the close temporarily
-                    await SaveHelper.SaveAsync();
-                    
-                    // Close the window after save is complete
-                    Application.Current.Dispatcher.Invoke(() => 
-                    {
-                        // Temporarily disable auto-save to prevent loop
-                        var tempAutoSave = SettingsHelper.Instance.AutoSaveOnClose;
-                        SettingsHelper.Instance.AutoSaveOnClose = false;
-                        this.Close();
-                        SettingsHelper.Instance.AutoSaveOnClose = tempAutoSave;
-                    });
-                }
+                // Mark recovery session as properly closed (files are backed up already)
+                AutoRecoveryHelper.CloseSession();
             }
             else
             {
@@ -364,6 +378,52 @@ namespace grzyClothTool
                 {
                     e.Cancel = true;
                 }
+            }
+        }
+
+        private async Task HandleRecoverySession(RecoverySession session)
+        {
+            try
+            {
+                LogHelper.Log($"Found unclosed recovery session from {session.CreatedTime} with {session.FileCount} files");
+                
+                var result = Controls.CustomMessageBox.Show(
+                    $"Found unsaved work from {session.CreatedTime:g} with {session.FileCount} file(s).\n\nWould you like to recover it?",
+                    "Recover Unsaved Work",
+                    Controls.CustomMessageBox.CustomMessageBoxButtons.YesNo,
+                    Controls.CustomMessageBox.CustomMessageBoxIcon.Question
+                );
+
+                if (result == Controls.CustomMessageBox.CustomMessageBoxResult.Yes)
+                {
+                    ProgressHelper.Start("Recovering session...");
+                    
+                    var success = await AutoRecoveryHelper.RecoverSessionAsync(session);
+                    
+                    if (success)
+                    {
+                        ProgressHelper.Stop("Session recovered in {0}", true);
+                        SaveHelper.SetUnsavedChanges(true);
+                        _navigationHelper.Navigate("Project");
+                    }
+                    else
+                    {
+                        ProgressHelper.Stop("Failed to recover session", false);
+                        AutoRecoveryHelper.DiscardSession(session);
+                        AutoRecoveryHelper.StartSession();
+                    }
+                }
+                else
+                {
+                    // User declined recovery, discard the session
+                    AutoRecoveryHelper.DiscardSession(session);
+                    AutoRecoveryHelper.StartSession();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log($"Error handling recovery session: {ex.Message}");
+                AutoRecoveryHelper.StartSession();
             }
         }
 
@@ -514,6 +574,149 @@ namespace grzyClothTool
                     Directory.Delete(tempPath, true);
                 }
             }
+        }
+
+        private void Window_DragOver(object sender, DragEventArgs e)
+        {
+            // Only allow drag and drop if a project is open
+            if (_navigationHelper.CurrentPage is ProjectWindow && e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Copy;
+                e.Handled = true;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+                e.Handled = true;
+            }
+        }
+
+        private async void Window_Drop(object sender, DragEventArgs e)
+        {
+            // Only process drops if a project is open
+            if (!(_navigationHelper.CurrentPage is ProjectWindow))
+            {
+                LogHelper.Log("Please open a project first before importing files");
+                return;
+            }
+
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files == null || files.Length == 0)
+                    return;
+
+                // Separate files by type
+                var yddFiles = files.Where(f => f.EndsWith(".ydd", StringComparison.OrdinalIgnoreCase)).ToArray();
+                var metaFiles = files.Where(f => f.EndsWith(".meta", StringComparison.OrdinalIgnoreCase)).ToArray();
+
+                try
+                {
+                    // Process .meta files first
+                    if (metaFiles.Length > 0)
+                    {
+                        ProgressHelper.Start("Importing meta files...");
+                        foreach (var metaFile in metaFiles)
+                        {
+                            await AddonManager.LoadAddon(metaFile, shouldSetProjectName: false);
+                        }
+                        ProgressHelper.Stop("Meta files imported in {0}", true);
+                    }
+
+                    // Process .ydd files - group by detected gender
+                    if (yddFiles.Length > 0)
+                    {
+                        ProgressHelper.Start("Importing drawable files...");
+                        
+                        // Group files by gender
+                        var maleFiles = new List<string>();
+                        var femaleFiles = new List<string>();
+                        var unknownFiles = new List<string>();
+                        
+                        foreach (var file in yddFiles)
+                        {
+                            var gender = DetermineGenderFromFile(file);
+                            if (gender == Enums.SexType.male)
+                                maleFiles.Add(file);
+                            else if (gender == Enums.SexType.female)
+                                femaleFiles.Add(file);
+                            else
+                                unknownFiles.Add(file);
+                        }
+                        
+                        // Import male files
+                        if (maleFiles.Count > 0)
+                        {
+                            await AddonManager.AddDrawables(maleFiles.ToArray(), Enums.SexType.male, null);
+                            LogHelper.Log($"Imported {maleFiles.Count} male drawable(s)");
+                        }
+                        
+                        // Import female files
+                        if (femaleFiles.Count > 0)
+                        {
+                            await AddonManager.AddDrawables(femaleFiles.ToArray(), Enums.SexType.female, null);
+                            LogHelper.Log($"Imported {femaleFiles.Count} female drawable(s)");
+                        }
+                        
+                        // Handle unknown files - ask user
+                        if (unknownFiles.Count > 0)
+                        {
+                            var result = Controls.CustomMessageBox.Show(
+                                $"Could not auto-detect gender for {unknownFiles.Count} file(s).\n\nAre these MALE drawables?\n\nClick 'Yes' for Male or 'No' for Female",
+                                "Gender Selection",
+                                Controls.CustomMessageBox.CustomMessageBoxButtons.YesNo,
+                                Controls.CustomMessageBox.CustomMessageBoxIcon.Question
+                            );
+                            var unknownSex = result == Controls.CustomMessageBox.CustomMessageBoxResult.Yes 
+                                ? Enums.SexType.male 
+                                : Enums.SexType.female;
+                            await AddonManager.AddDrawables(unknownFiles.ToArray(), unknownSex, null);
+                            LogHelper.Log($"Imported {unknownFiles.Count} {unknownSex} drawable(s)");
+                        }
+                        
+                        ProgressHelper.Stop($"Imported {yddFiles.Length} drawable(s) in {{0}}", true);
+                    }
+
+                    SaveHelper.SetUnsavedChanges(true);
+                    LogHelper.Log($"Successfully imported {files.Length} file(s) via drag and drop");
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.Log($"Error importing files: {ex.Message}", Views.LogType.Error);
+                    ProgressHelper.Stop("Import failed", false);
+                }
+            }
+        }
+
+        private Enums.SexType? DetermineGenderFromFile(string file)
+        {
+            // GTA V naming conventions for gender detection:
+            // Male: ends with _u (universal) or contains _m_ or mp_m_
+            // Female: ends with _r (restricted/female) or contains _f_ or mp_f_
+            
+            var fileName = Path.GetFileNameWithoutExtension(file).ToLower();
+            var fullName = Path.GetFileName(file).ToLower();
+            
+            // Check for explicit male indicators
+            if (fileName.EndsWith("_u") || 
+                fullName.Contains("_m_") || 
+                fullName.Contains("mp_m_") ||
+                fullName.StartsWith("mp_m_"))
+            {
+                return Enums.SexType.male;
+            }
+            
+            // Check for explicit female indicators
+            if (fileName.EndsWith("_r") || 
+                fullName.Contains("_f_") || 
+                fullName.Contains("mp_f_") ||
+                fullName.StartsWith("mp_f_"))
+            {
+                return Enums.SexType.female;
+            }
+            
+            // Could not determine
+            return null;
         }
     }
 }

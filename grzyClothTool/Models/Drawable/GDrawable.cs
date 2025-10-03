@@ -67,19 +67,20 @@ public class GDrawable : INotifyPropertyChanged
     public virtual bool IsReserved => false;
 
     public int TypeNumeric { get; set; }
+    public bool IsBodyPart { get; set; }
     private string _typeName;
     public string TypeName
     {
         get
         {
-            _typeName ??= EnumHelper.GetName(TypeNumeric, IsProp);
+            _typeName ??= EnumHelper.GetName(TypeNumeric, IsProp, IsBodyPart);
             return _typeName;
         }
         set
         {
             _typeName = value;
 
-            //TypeNumeric = EnumHelper.GetValue(value, IsProp);
+            //TypeNumeric = EnumHelper.GetValue(value, IsProp, IsBodyPart);
 
             SetDrawableName();
             OnPropertyChanged();
@@ -118,10 +119,27 @@ public class GDrawable : INotifyPropertyChanged
     }
 
     public bool IsProp { get; set; }
-    public bool IsComponent => !IsProp;
+    public bool IsComponent => !IsProp && !IsBodyPart;
 
-    public int Number { get; set; }
+    private int _number;
+    public int Number 
+    { 
+        get => _number;
+        set
+        {
+            if (_number != value)
+            {
+                _number = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(DisplayNumber));
+                OnPropertyChanged(nameof(FormattedDisplayName));
+            }
+        }
+    }
     public string DisplayNumber => (Number % GlobalConstants.MAX_DRAWABLES_IN_ADDON).ToString("D3");
+
+    [JsonIgnore]
+    public string CategoryName => IsBodyPart ? "Bodyparts" : (IsProp ? "Props" : "Clothing");
     
     /// <summary>
     /// Formatted display name with gender indicator and drawable number

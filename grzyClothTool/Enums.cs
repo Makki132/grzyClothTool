@@ -48,6 +48,17 @@ public class Enums
         p_ph_r_hand = 12
     }
 
+    // Body parts for custom ped models (freemode bodies)
+    public enum BodyPartNumbers
+    {
+        head = 0,
+        torso = 1,
+        r_arm = 2,
+        l_arm = 3,
+        r_leg = 4,
+        l_leg = 5
+    }
+
     // https://alexguirre.github.io/rage-parser-dumps/dump.html?game=gta5&build=3179#ePedCompFlags
     public enum DrawableFlags
     {

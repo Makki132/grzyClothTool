@@ -180,11 +180,30 @@ namespace grzyClothTool.Models
                 }
             }
 
+            // Build a set of existing drawable file paths (normalized) to prevent duplicates across imports
+            var existingDrawablePaths = Addons
+                .SelectMany(a => a.Drawables)
+                .Select(d => Path.GetFullPath(d.FilePath).ToLowerInvariant())
+                .ToHashSet();
+
             Regex alternateRegex = new(@"_\w_\d+\.ydd$");
             Regex physicsRegex = new(@"\.yld$");
+            var duplicatesCount = 0;
+            var duplicateFiles = new List<string>();
+
             foreach (var filePath in filePaths)
             {
-                var (isProp, drawableType) = FileHelper.ResolveDrawableType(filePath);
+                // Skip duplicate drawable file paths
+                var normalizedPath = Path.GetFullPath(filePath).ToLowerInvariant();
+                if (existingDrawablePaths.Contains(normalizedPath))
+                {
+                    duplicatesCount++;
+                    duplicateFiles.Add(Path.GetFileName(filePath));
+                    LogHelper.Log($"Skipped duplicate drawable: {Path.GetFileName(filePath)}", Views.LogType.Warning);
+                    continue;
+                }
+
+                var (isProp, drawableType, isBodyPart) = FileHelper.ResolveDrawableType(filePath);
                 if (drawableType == -1)
                 {
                     continue;
@@ -200,7 +219,7 @@ namespace grzyClothTool.Models
                 Addon currentAddon = Addons[currentAddonIndex];
 
                 // Calculate countOfType for the current Addon
-                var drawablesOfType = currentAddon.Drawables.Where(x => x.TypeNumeric == drawableType && x.IsProp == isProp && x.Sex == sex);
+                var drawablesOfType = currentAddon.Drawables.Where(x => x.TypeNumeric == drawableType && x.IsProp == isProp && x.IsBodyPart == isBodyPart && x.Sex == sex);
                 var countOfType = drawablesOfType.Count();
 
                 if (alternateRegex.IsMatch(filePath))
@@ -244,7 +263,10 @@ namespace grzyClothTool.Models
                     continue;
                 }
 
-                var drawable = await Task.Run(() => FileHelper.CreateDrawableAsync(filePath, sex, isProp, drawableType, countOfType));
+                var drawable = await Task.Run(() => FileHelper.CreateDrawableAsync(filePath, sex, isProp, drawableType, countOfType, isBodyPart));
+
+                // Mark the path as seen to prevent duplicates in the same batch
+                existingDrawablePaths.Add(normalizedPath);
 
                 // Set properties from ymt file if available
                 if (ymt is not null)
@@ -300,6 +322,17 @@ namespace grzyClothTool.Models
             }
 
             Addons.Sort(true);
+
+            // Notify user if duplicates were found and skipped
+            if (duplicatesCount > 0)
+            {
+                var list = string.Join(", ", duplicateFiles.Take(5));
+                if (duplicateFiles.Count > 5)
+                {
+                    list += $" and {duplicateFiles.Count - 5} more";
+                }
+                CustomMessageBox.Show($"Skipped {duplicatesCount} duplicate drawable(s): {list}", "Duplicate Drawables Detected");
+            }
         }
 
         public void AddDrawable(GDrawable drawable)
@@ -344,6 +377,16 @@ namespace grzyClothTool.Models
             drawable.SetDrawableName();
 
             currentAddon.Drawables.Add(drawable);
+
+            // Auto-backup file for crash recovery if enabled
+            if (SettingsHelper.Instance.AutoSaveOnClose && File.Exists(drawable.FilePath))
+            {
+                _ = Helpers.AutoRecoveryHelper.BackupFileAsync(
+                    drawable.FilePath,
+                    Path.GetFileName(drawable.FilePath),
+                    currentAddon.Name
+                );
+            }
 
             SaveHelper.SetUnsavedChanges(true);
         }

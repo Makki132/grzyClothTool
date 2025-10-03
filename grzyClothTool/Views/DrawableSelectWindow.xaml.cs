@@ -14,11 +14,12 @@ namespace grzyClothTool.Views
         public event PropertyChangedEventHandler PropertyChanged;
 
         public string AssetPath { get; set; }
-        public List<string> AssetTypes { get; set; } = ["Component", "Prop"];
+        public List<string> AssetTypes { get; set; } = ["Component", "Prop", "Body Part"];
         public string SelectedAssetType { get; set; }
         public bool IsAssetTypeSelected => DrawableTypes.Count > 0;
         public bool IsSubmitEnabled => SelectedDrawableType != null;
         public bool IsProp => SelectedAssetType == "Prop";
+        public bool IsBodyPart => SelectedAssetType == "Body Part";
 
         private List<string> _drawableTypes = [];
         public List<string> DrawableTypes
@@ -69,6 +70,7 @@ namespace grzyClothTool.Views
             {
                 "Component" => EnumHelper.GetDrawableTypeList(),
                 "Prop" => EnumHelper.GetPropTypeList(),
+                "Body Part" => EnumHelper.GetBodyPartTypeList(),
                 _ => [],
             };
         }

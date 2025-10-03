@@ -304,6 +304,13 @@ namespace grzyClothTool.Controls
 
             if (files.ShowDialog() == true)
             {
+                // Track existing file paths to prevent duplicates
+                var existingTexturePaths = SelectedDraw.Textures.Select(t => Path.GetFullPath(t.FilePath).ToLowerInvariant()).ToHashSet();
+                
+                var duplicatesCount = 0;
+                var addedCount = 0;
+                var duplicateFiles = new List<string>();
+
                 foreach(var file in files.FileNames)
                 {
                     // check if we are within the limit
@@ -313,15 +320,48 @@ namespace grzyClothTool.Controls
                         Show($"Reached the limit of {GlobalConstants.MAX_DRAWABLE_TEXTURES} textures. Last added texture: {Path.GetFileName(file)}.", "Info", CustomMessageBoxButtons.OKOnly, CustomMessageBoxIcon.Warning);
                         LogHelper.Log($"Reached the limit of {GlobalConstants.MAX_DRAWABLE_TEXTURES} textures. Last added texture: {Path.GetFileName(file)}.", LogType.Warning);
                         break;
-
                     }
+
+                    // Check for duplicate file path
+                    var normalizedFilePath = Path.GetFullPath(file).ToLowerInvariant();
+                    if (existingTexturePaths.Contains(normalizedFilePath))
+                    {
+                        duplicatesCount++;
+                        duplicateFiles.Add(Path.GetFileName(file));
+                        LogHelper.Log($"Skipped duplicate texture: {Path.GetFileName(file)}", LogType.Warning);
+                        continue;
+                    }
+
                     var gtxt = new GTexture(file, SelectedDraw.TypeNumeric, SelectedDraw.Number, SelectedDraw.Textures.Count, SelectedDraw.HasSkin, SelectedDraw.IsProp);
                     SelectedDraw.Textures.Add(gtxt);
+                    existingTexturePaths.Add(normalizedFilePath);
 
+                    addedCount++;
                     remainingTextures--;
                 }
 
-                SaveHelper.SetUnsavedChanges(true);
+                // Show summary message if there were duplicates
+                if (duplicatesCount > 0)
+                {
+                    var duplicateFilesList = string.Join(", ", duplicateFiles.Take(5));
+                    if (duplicateFiles.Count > 5)
+                    {
+                        duplicateFilesList += $" and {duplicateFiles.Count - 5} more";
+                    }
+                    
+                    var message = $"Skipped {duplicatesCount} duplicate texture(s): {duplicateFilesList}";
+                    if (addedCount > 0)
+                    {
+                        message += $"\n\nAdded {addedCount} new texture(s).";
+                    }
+                    
+                    Show(message, "Duplicate Textures Detected", CustomMessageBoxButtons.OKOnly, CustomMessageBoxIcon.Warning);
+                }
+
+                if (addedCount > 0)
+                {
+                    SaveHelper.SetUnsavedChanges(true);
+                }
             }
         }
 

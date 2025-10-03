@@ -306,6 +306,7 @@
                                                                                                     
                                                                                                     <!-- Category Name -->
                                                                                                     <TextBlock Grid.Column="2" 
+                                                                                                               x:Name="CategoryNameText"
                                                                                                                Text="{Binding Name}" 
                                                                                                                FontWeight="SemiBold" 
                                                                                                                FontSize="13" 
@@ -328,8 +329,12 @@
                                                                                                 </Grid>
                                                                                             </Border>
                                                                                             <ControlTemplate.Triggers>
+                                                                                                <Trigger Property="IsMouseOver" Value="False">
+                                                                                                    <Setter TargetName="CategoryNameText" Property="Foreground" Value="{DynamicResource Brush950}"/>
+                                                                                                </Trigger>
                                                                                                 <Trigger Property="IsMouseOver" Value="True">
                                                                                                     <Setter Property="Background" Value="{DynamicResource Brush300}"/>
+                                                                                                    <Setter TargetName="CategoryNameText" Property="Foreground" Value="{DynamicResource Brush950}"/>
                                                                                                 </Trigger>
                                                                                                 <Trigger Property="IsChecked" Value="True">
                                                                                                     <Trigger.EnterActions>

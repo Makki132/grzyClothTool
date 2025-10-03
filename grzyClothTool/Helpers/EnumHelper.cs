@@ -7,15 +7,15 @@ using static grzyClothTool.Enums;
 namespace grzyClothTool.Helpers;
 public static class EnumHelper
 {
-    public static string GetName(int type, bool isProp)
+    public static string GetName(int type, bool isProp, bool isBodyPart = false)
     {
-        Type enumType = isProp ? typeof(Enums.PropNumbers) : typeof(Enums.ComponentNumbers);
+        Type enumType = isBodyPart ? typeof(Enums.BodyPartNumbers) : (isProp ? typeof(Enums.PropNumbers) : typeof(Enums.ComponentNumbers));
         return Enum.GetName(enumType, type);
     }
 
-    public static int GetValue(string type, bool isProp)
+    public static int GetValue(string type, bool isProp, bool isBodyPart = false)
     {
-        Type enumType = isProp ? typeof(Enums.PropNumbers) : typeof(Enums.ComponentNumbers);
+        Type enumType = isBodyPart ? typeof(Enums.BodyPartNumbers) : (isProp ? typeof(Enums.PropNumbers) : typeof(Enums.ComponentNumbers));
         return (int)Enum.Parse(enumType, type);
     }
 
@@ -168,6 +168,14 @@ public static class EnumHelper
     {
         return Enum.GetValues(typeof(SexType))
             .Cast<SexType>()
+            .Select(item => item.ToString())
+            .ToList();
+    }
+
+    public static List<string> GetBodyPartTypeList()
+    {
+        return Enum.GetValues(typeof(BodyPartNumbers))
+            .Cast<BodyPartNumbers>()
             .Select(item => item.ToString())
             .ToList();
     }

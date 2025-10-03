@@ -47,9 +47,9 @@ public static class FileHelper
         }
     }
 
-    public static Task<GDrawable> CreateDrawableAsync(string filePath, Enums.SexType sex, bool isProp, int typeNumber, int countOfType)
+    public static Task<GDrawable> CreateDrawableAsync(string filePath, Enums.SexType sex, bool isProp, int typeNumber, int countOfType, bool isBodyPart = false)
     {
-        var name = EnumHelper.GetName(typeNumber, isProp);
+        var name = EnumHelper.GetName(typeNumber, isProp, isBodyPart);
 
         var matchingTextures = FindMatchingTextures(filePath, name, isProp);
 
@@ -60,7 +60,11 @@ public static class FileHelper
         // Should we inform user, that they tried to add too many textures?
         var textures = new ObservableCollection<GTexture>(matchingTextures.Select((path, txtNumber) => new GTexture(path, typeNumber, countOfType, txtNumber, drawableHasSkin, isProp)).Take(GlobalConstants.MAX_DRAWABLE_TEXTURES));
 
-        return Task.FromResult(new GDrawable(filePath, sex, isProp, typeNumber, countOfType, drawableHasSkin, textures));
+        var drawable = new GDrawable(filePath, sex, isProp, typeNumber, countOfType, drawableHasSkin, textures)
+        {
+            IsBodyPart = isBodyPart
+        };
+        return Task.FromResult(drawable);
     }
 
     public static async Task CopyAsync(string sourcePath, string destinationPath)
@@ -121,7 +125,7 @@ public static class FileHelper
         return allYtds;
     }
 
-    public static (bool, int) ResolveDrawableType(string file)
+    public static (bool isProp, int type, bool isBodyPart) ResolveDrawableType(string file)
     {
         string fileName = Path.GetFileNameWithoutExtension(file);
         if (fileName.Contains('^'))
@@ -131,31 +135,40 @@ public static class FileHelper
 
         var componentsList = EnumHelper.GetDrawableTypeList();
         var propsList = EnumHelper.GetPropTypeList();
+        var bodyPartsList = EnumHelper.GetBodyPartTypeList();
 
         var compName = componentsList.FirstOrDefault(name => fileName.StartsWith(name + "_"));
         var propName = propsList.FirstOrDefault(name => fileName.StartsWith(name + "_"));
+        var bodyName = bodyPartsList.FirstOrDefault(name => fileName.StartsWith(name + "_"));
+
+        // Prioritize Body Parts over Components to avoid overlap on names like "head"
+        if (bodyName != null)
+        {
+            var value = EnumHelper.GetValue(bodyName, false, true);
+            return (false, value, true);
+        }
 
         if (compName != null)
         {
-            var value = EnumHelper.GetValue(compName, false);
-            return (false, value);
+            var value = EnumHelper.GetValue(compName, false, false);
+            return (false, value, false);
         }
 
         if (propName != null)
         {
-            var value = EnumHelper.GetValue(propName, true);
-            return (true, value);
+            var value = EnumHelper.GetValue(propName, true, false);
+            return (true, value, false);
         }
 
         var window = new DrawableSelectWindow(file);
         var result = window.ShowDialog();
         if (result == true)
         {
-            var value = EnumHelper.GetValue(window.SelectedDrawableType, window.IsProp);
-            return (window.IsProp, value);
+            var value = EnumHelper.GetValue(window.SelectedDrawableType, window.IsProp, window.IsBodyPart);
+            return (window.IsProp, value, window.IsBodyPart);
         }
 
-        return (false, -1);
+        return (false, -1, false);
     }
 
     public static int? GetDrawableNumberFromFileName(string fileName)
