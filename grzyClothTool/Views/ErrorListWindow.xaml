@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window x:Class="grzyClothTool.Views.ErrorListWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:icons="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
+        mc:Ignorable="d"
+        Title="Error List"
+        Height="400"
+        Width="800"
+        MinHeight="300"
+        MinWidth="600"
+        Background="{DynamicResource Brush50}"
+        WindowStartupLocation="CenterOwner">
+
+    <Window.Resources>
+        <Style x:Key="ErrorListItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Border"
+                                Background="Transparent"
+                                BorderBrush="{DynamicResource Brush200}"
+                                BorderThickness="0,0,0,1"
+                                Padding="12,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Icon -->
+                                <icons:MaterialIcon Grid.Column="0"
+                                                   Kind="{Binding TypeIcon}"
+                                                   Width="20"
+                                                   Height="20"
+                                                   Margin="0,0,12,0"
+                                                   VerticalAlignment="Center">
+                                    <icons:MaterialIcon.Style>
+                                        <Style TargetType="icons:MaterialIcon">
+                                            <Setter Property="Foreground" Value="{DynamicResource Brush700}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding LogType}" Value="Warning">
+                                                    <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding LogType}" Value="Error">
+                                                    <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </icons:MaterialIcon.Style>
+                                </icons:MaterialIcon>
+
+                                <!-- Type Label -->
+                                <TextBlock Grid.Column="1"
+                                          Text="{Binding LogType}"
+                                          FontWeight="SemiBold"
+                                          FontSize="12"
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,12,0"
+                                          MinWidth="60">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource Brush700}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding LogType}" Value="Warning">
+                                                    <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding LogType}" Value="Error">
+                                                    <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+
+                                <!-- Message -->
+                                <TextBlock Grid.Column="2"
+                                          Text="{Binding Message}"
+                                          TextWrapping="Wrap"
+                                          FontSize="13"
+                                          VerticalAlignment="Center"
+                                          Foreground="{DynamicResource Brush950}" />
+
+                                <!-- Timestamp -->
+                                <TextBlock Grid.Column="3"
+                                          Text="{Binding Timestamp}"
+                                          FontSize="11"
+                                          VerticalAlignment="Center"
+                                          Margin="12,0,0,0"
+                                          Foreground="{DynamicResource Brush500}" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource Brush100}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource Brush200}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <!-- Header -->
+        <Grid DockPanel.Dock="Top" Background="{DynamicResource Brush100}" Height="50">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
+                <icons:MaterialIcon Kind="AlertCircleOutline" Width="24" Height="24" Foreground="{DynamicResource Brush950}" Margin="0,0,8,0" />
+                <TextBlock Text="Error List" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource Brush950}" VerticalAlignment="Center" />
+                <TextBlock x:Name="ErrorCountText" Margin="12,0,0,0" FontSize="14" Foreground="{DynamicResource Brush700}" VerticalAlignment="Center" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+                <Button x:Name="ClearButton" Click="Clear_Click" Style="{StaticResource ModernButton}" Padding="10,6" Margin="0,0,8,0">
+                    <StackPanel Orientation="Horizontal">
+                        <icons:MaterialIcon Kind="DeleteSweep" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,4,0" />
+                        <TextBlock Text="Clear All" VerticalAlignment="Center" FontSize="12" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="RefreshButton" Click="Refresh_Click" Style="{StaticResource ModernButton}" Padding="10,6">
+                    <StackPanel Orientation="Horizontal">
+                        <icons:MaterialIcon Kind="Refresh" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,4,0" />
+                        <TextBlock Text="Refresh" VerticalAlignment="Center" FontSize="12" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Empty state -->
+        <Grid x:Name="EmptyState" Visibility="Collapsed">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <icons:MaterialIcon Kind="CheckCircleOutline" Width="64" Height="64" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" Margin="0,0,0,16" />
+                <TextBlock Text="No errors or warnings" FontSize="16" Foreground="{DynamicResource Brush700}" HorizontalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Error List -->
+        <ListBox x:Name="ErrorListBox"
+                 ItemsSource="{Binding ErrorMessages}"
+                 ItemContainerStyle="{StaticResource ErrorListItemStyle}"
+                 Background="Transparent"
+                 BorderThickness="0"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+        </ListBox>
+    </DockPanel>
+</Window>

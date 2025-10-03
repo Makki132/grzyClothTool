@@ -12,11 +12,13 @@ public class LogMessageEventArgs : EventArgs
 public static class LogHelper
 {
     private static LogWindow _logWindow;
+    private static ErrorListWindow _errorListWindow;
     public static event EventHandler<LogMessageEventArgs> LogMessageCreated;
 
     public static void Init()
     {
         _logWindow = new LogWindow();
+        _errorListWindow = new ErrorListWindow();
     }
 
     public static void Log(string message, LogType logtype = LogType.Info)
@@ -31,6 +33,12 @@ public static class LogHelper
 
             _logWindow.LogMessages.Add(new LogMessage { TypeIcon = type, Message = message, Timestamp = timestamp });
             LogMessageCreated?.Invoke(_logWindow, new LogMessageEventArgs { TypeIcon = type, Message = message });
+            
+            // Add errors and warnings to error list
+            if (logtype == LogType.Warning || logtype == LogType.Error)
+            {
+                _errorListWindow?.AddError(logtype, message, timestamp);
+            }
         });
     }
 
@@ -50,10 +58,26 @@ public static class LogHelper
         _logWindow.Show();
     }
 
+    public static void OpenErrorListWindow()
+    {
+        _errorListWindow?.Show();
+        _errorListWindow?.Activate();
+    }
+
     public static void Close()
     {
-        _logWindow.Closing -= _logWindow.LogWindow_Closing;
-        _logWindow.Close();
-        _logWindow = null;
+        if (_logWindow != null)
+        {
+            _logWindow.Closing -= _logWindow.LogWindow_Closing;
+            _logWindow.Close();
+            _logWindow = null;
+        }
+
+        if (_errorListWindow != null)
+        {
+            _errorListWindow.Closing -= _errorListWindow.ErrorListWindow_Closing;
+            _errorListWindow.Close();
+            _errorListWindow = null;
+        }
     }
 }

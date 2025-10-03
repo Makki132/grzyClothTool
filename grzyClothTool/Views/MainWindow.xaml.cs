@@ -380,8 +380,7 @@ namespace grzyClothTool
 
         private void ErrorList_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Implement Error List window
-            LogHelper.Log("Error List window will be implemented in Phase 6");
+            LogHelper.OpenErrorListWindow();
         }
 
         private void Documentation_Click(object sender, RoutedEventArgs e)
