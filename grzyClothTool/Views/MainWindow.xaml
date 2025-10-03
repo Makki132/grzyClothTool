@@ -127,7 +127,7 @@
             
             <!-- Version Info -->
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
-                <TextBlock x:Name="versionText" Text="Version 1.0.4" Foreground="{DynamicResource Brush700}" FontSize="11" VerticalAlignment="Center" Margin="0,0,4,0" />
+                <TextBlock x:Name="versionText" Text="Version 1.0.5" Foreground="{DynamicResource Brush700}" FontSize="11" VerticalAlignment="Center" Margin="0,0,4,0" />
                 <icons:MaterialIcon Kind="Check" Width="14" Height="14" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" />
             </StackPanel>
         </Grid>

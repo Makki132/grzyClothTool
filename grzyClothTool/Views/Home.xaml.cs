@@ -58,6 +58,19 @@ namespace grzyClothTool.Views
         {
             ChangelogContent.Children.Clear();
 
+            // Version 1.0.5 - UI Improvements and New Features
+            AddChangelogVersion("1.0.5", "UI Improvements and New Features", new List<string>
+            {
+                "Added functional Error List window with real-time error/warning tracking",
+                "Implemented search/filter functionality for drawables with live filtering",
+                "Fixed Delete texture button to properly display text alongside icon",
+                "Fixed button cutoff issues at bottom of texture list",
+                "Added light box styling to Home screen (Did You Know and Changelog)",
+                "Improved GroupBox spacing and layout on right panel",
+                "Removed Patreon account button from Settings",
+                "Enhanced overall UI consistency and polish"
+            });
+
             // Version 1.0.4 - UI Modernization
             AddChangelogVersion("1.0.4", "UI Modernization Update", new List<string>
             {
