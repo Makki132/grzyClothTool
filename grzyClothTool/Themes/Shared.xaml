@@ -36,9 +36,11 @@
 
     <!-- Custom style for GroupBox with the key "FixedGroupBox" -->
     <Style x:Key="FixedGroupBox" TargetType="{x:Type GroupBox}">
-        <Setter Property="BorderBrush" Value="{DynamicResource GroupBoxBorder}"/>
-        <Setter Property="Foreground" Value="{DynamicResource Brush950}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush400}"/>
+        <Setter Property="Background" Value="{DynamicResource Brush150}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brush900}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="12"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type GroupBox}">
@@ -55,46 +57,32 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="4"/>
                         </Grid.RowDefinitions>
-                        <Border CornerRadius="4"
+                        <Border CornerRadius="8"
                     Grid.Row="1"
                     Grid.RowSpan="3"
                     Grid.Column="0"
                     Grid.ColumnSpan="4"
                     BorderThickness="{TemplateBinding BorderThickness}"
-                    BorderBrush="Transparent"
+                    BorderBrush="{TemplateBinding BorderBrush}"
                     Background="{TemplateBinding Background}"/>
                         <!-- ContentPresenter for the header -->
                         <Border x:Name="Header"
-                    Padding="6,0,6,0"
+                    Padding="12,4,12,4"
                     Grid.Row="0"
                     Grid.RowSpan="2"
-                    Grid.Column="1">
+                    Grid.Column="1"
+                    Background="{TemplateBinding Background}"
+                    CornerRadius="8,8,0,0">
                             <ContentPresenter ContentSource="Header" 
-                                RecognizesAccessKey="True" />
+                                RecognizesAccessKey="True"
+                                TextElement.FontWeight="SemiBold"
+                                TextElement.FontSize="13" />
                         </Border>
                         <!-- Primary content for GroupBox -->
                         <ContentPresenter Grid.Row="2"
                               Grid.Column="1"
                               Grid.ColumnSpan="2"
                               Margin="{TemplateBinding Padding}"/>
-                        <Border CornerRadius="4"
-                    Grid.Row="1"
-                    Grid.RowSpan="3"
-                    Grid.ColumnSpan="4"
-                    BorderThickness="{TemplateBinding BorderThickness}"
-                    BorderBrush="{TemplateBinding BorderBrush}">
-                            <Border.OpacityMask>
-                                <MultiBinding Converter="{StaticResource BorderGapMaskConverter}"
-                              ConverterParameter="6">
-                                    <Binding ElementName="Header"
-                           Path="ActualWidth"/>
-                                    <Binding RelativeSource="{RelativeSource Self}"
-                           Path="ActualWidth"/>
-                                    <Binding RelativeSource="{RelativeSource Self}"
-                           Path="ActualHeight"/>
-                                </MultiBinding>
-                            </Border.OpacityMask>
-                        </Border>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

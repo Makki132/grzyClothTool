@@ -77,10 +77,14 @@
 			<MoveToLibFolder Include="$(OutputPath)*.*" />
 		</ItemGroup>
 		<Move SourceFiles="@(MoveToLibFolder)" DestinationFolder="..\..\packages" OverwriteReadOnlyFiles="true" />
+		<!-- Copy DLLs back to Debug/Release for WPF temp project -->
+		<Copy SourceFiles="..\..\packages\CodeWalker.Core.dll;..\..\packages\CodeWalker.dll" DestinationFolder="$(OutputPath)" Condition="Exists('..\..\packages\CodeWalker.Core.dll')" />
 	</Target>
 
+	<!-- Disabled to fix WPF temp project build issues
 	<Target Name="MyClean" AfterTargets="MyAfterBuild">
 		<RemoveDir Directories="..\..\packages\Debug\;..\..\packages\Release\" />
 	</Target>
+	-->
 
 </Project>

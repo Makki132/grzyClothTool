@@ -12,30 +12,34 @@ namespace grzyClothTool.Converters
     /// <summary>
     /// Converter that counts male and female drawables in a collection and returns a formatted string
     /// </summary>
-    public class GenderCountConverter : IValueConverter
+    public class GenderCountConverter : IMultiValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             try
             {
-                Debug.WriteLine($"GenderCountConverter - Input type: {value?.GetType().Name ?? "null"}");
-                
-                // Handle both IEnumerable<object> and ReadOnlyObservableCollection from CollectionViewGroup
-                if (value is IEnumerable items)
+                // values[0] = ReadOnlyObservableCollection from CollectionViewGroup.Items
+                // values[1] = IsExpanded (bool) - just used to trigger re-evaluation
+                if (values != null && values.Length > 0 && values[0] is IEnumerable items)
                 {
                     var drawables = items.OfType<GDrawable>().ToList();
-                    Debug.WriteLine($"GenderCountConverter - Found {drawables.Count} drawables");
                     
-                    // Count males (Sex = male = 1) and females (Sex = female = 0)
+                    // Count males and females
                     int maleCount = drawables.Count(d => d.Sex == Enums.SexType.male);
                     int femaleCount = drawables.Count(d => d.Sex == Enums.SexType.female);
                     
-                    Debug.WriteLine($"GenderCountConverter - Males: {maleCount}, Females: {femaleCount}");
+                    Debug.WriteLine($"GenderCountConverter - Total: {drawables.Count}, Males: {maleCount}, Females: {femaleCount}");
                     
-                    return $"(M: {maleCount} / F: {femaleCount})";
+                    if (maleCount > 0 && femaleCount > 0)
+                        return $"(M: {maleCount} / F: {femaleCount})";
+                    if (maleCount > 0)
+                        return $"(M: {maleCount})";
+                    if (femaleCount > 0)
+                        return $"(F: {femaleCount})";
+                    
+                    return $"(Count: {drawables.Count})";
                 }
                 
-                Debug.WriteLine("GenderCountConverter - Value is not IEnumerable");
                 return "(M: 0 / F: 0)";
             }
             catch (Exception ex)
@@ -45,7 +49,7 @@ namespace grzyClothTool.Converters
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
