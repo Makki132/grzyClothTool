@@ -67,6 +67,21 @@ namespace grzyClothTool.Views
                 }
             }
         }
+
+        private int _orderValue = 999;
+        public int OrderValue
+        {
+            get => _orderValue;
+            set
+            {
+                if (_orderValue != value)
+                {
+                    _orderValue = value;
+                    OnPropertyChanged(nameof(OrderValue));
+                }
+            }
+        }
+
         public string BuildPath { get; set; }
 
         private BuildResourceType _resourceType;
@@ -144,7 +159,7 @@ namespace grzyClothTool.Views
                 timer.Start();
 
                 var progress = new Progress<int>(value => ProgressValue += value);
-                var buildHelper = new BuildResourceHelper(ProjectName, BuildPath, progress, _resourceType, SplitAddons);
+                var buildHelper = new BuildResourceHelper(ProjectName, BuildPath, progress, _resourceType, SplitAddons, OrderValue);
 
                 await Task.Run(() => BuildResource(buildHelper)); // moved out of ui thread, so users don't think tool stopped responding
 

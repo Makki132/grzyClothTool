@@ -129,6 +129,7 @@
                             <c:SettingsLabelCheckBox Margin="5" Label="Display drawable path" Text="Enabled will display used path for selected drawable" IsChecked="{Binding Path=Instance.DisplaySelectedDrawablePath, Source={x:Static helpers:SettingsHelper.Instance}, Mode=TwoWay}" />
                             <c:SettingsLabelCheckBox Margin="5" Label="Delete drawable files automatically" Text="When enabled, it will automatically remove the associated files from your system when you delete a drawable from the addon" DisplayWarning="WARNING: This function will modify and remove files from your PC. Any removed files cannot be recovered.&#x0a;&#x0a;Are you sure you want to enable it?" IsChecked="{Binding Path=Instance.AutoDeleteFiles, Source={x:Static helpers:SettingsHelper.Instance}, Mode=TwoWay}" />
                             <c:SettingsLabelCheckBox Margin="5" Label="Mark new drawables" Text="When enabled, new drawables will be marked with a yellow dot" IsChecked="{Binding Path=Instance.MarkNewDrawables, Source={x:Static helpers:SettingsHelper.Instance}, Mode=TwoWay}" />
+                            <c:SettingsLabelCheckBox Margin="5" Label="Auto-save on close" Text="When enabled, the project will automatically save when closing the application (no confirmation prompt)" IsChecked="{Binding Path=Instance.AutoSaveOnClose, Source={x:Static helpers:SettingsHelper.Instance}, Mode=TwoWay}" />
                         </StackPanel>
                     </Grid>
                 </ScrollViewer>

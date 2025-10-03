@@ -138,22 +138,25 @@
             </StackPanel>
         </Grid>
 
-        <!-- Empty state -->
-        <Grid x:Name="EmptyState" Visibility="Collapsed">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <icons:MaterialIcon Kind="CheckCircleOutline" Width="64" Height="64" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" Margin="0,0,0,16" />
-                <TextBlock Text="No errors or warnings" FontSize="16" Foreground="{DynamicResource Brush700}" HorizontalAlignment="Center" />
-            </StackPanel>
-        </Grid>
+        <!-- Content Container -->
+        <Grid>
+            <!-- Empty state -->
+            <Grid x:Name="EmptyState" Visibility="Collapsed">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <icons:MaterialIcon Kind="CheckCircleOutline" Width="64" Height="64" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" Margin="0,0,0,16" />
+                    <TextBlock Text="No errors or warnings" FontSize="16" Foreground="{DynamicResource Brush700}" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Grid>
 
-        <!-- Error List -->
-        <ListBox x:Name="ErrorListBox"
-                 ItemsSource="{Binding ErrorMessages}"
-                 ItemContainerStyle="{StaticResource ErrorListItemStyle}"
-                 Background="Transparent"
-                 BorderThickness="0"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 ScrollViewer.VerticalScrollBarVisibility="Auto">
-        </ListBox>
+            <!-- Error List -->
+            <ListBox x:Name="ErrorListBox"
+                     ItemsSource="{Binding ErrorMessages}"
+                     ItemContainerStyle="{StaticResource ErrorListItemStyle}"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto">
+            </ListBox>
+        </Grid>
     </DockPanel>
 </Window>

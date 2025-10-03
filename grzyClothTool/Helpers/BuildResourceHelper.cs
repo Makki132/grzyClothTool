@@ -22,13 +22,14 @@ public class BuildResourceHelper
     private readonly string _baseBuildPath;
     private readonly bool _splitAddons;
     private readonly IProgress<int> _progress;
+    private readonly int _orderValue;
 
     private readonly bool shouldUseNumber = false;
 
     private readonly List<string> firstPersonFiles = [];
     private BuildResourceType _buildResourceType;
 
-    public BuildResourceHelper(string name, string path, IProgress<int> progress, BuildResourceType resourceType, bool splitAddons)
+    public BuildResourceHelper(string name, string path, IProgress<int> progress, BuildResourceType resourceType, bool splitAddons, int orderValue = 999)
     {
         _projectName = name;
         _buildPath = path;
@@ -36,6 +37,7 @@ public class BuildResourceHelper
         _progress = progress;
         _buildResourceType = resourceType;
         _splitAddons = splitAddons;
+        _orderValue = orderValue;
 
         shouldUseNumber = MainWindow.AddonManager.Addons.Count > 1;
     }
@@ -649,7 +651,7 @@ public class BuildResourceHelper
         sb.AppendLine($"  <startupScript />");
         sb.AppendLine($"  <scriptCallstackSize value=\"0\" />");
         sb.AppendLine($"  <type>EXTRACONTENT_COMPAT_PACK</type>");
-        sb.AppendLine($"  <order value=\"999\" />");
+        sb.AppendLine($"  <order value=\"{_orderValue}\" />");
         sb.AppendLine($"  <minorOrder value=\"0\" />");
         sb.AppendLine($"  <isLevelPack value=\"false\" />");
         sb.AppendLine($"  <dependencyPackHash />");

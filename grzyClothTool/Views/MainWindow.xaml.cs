@@ -335,11 +335,35 @@ namespace grzyClothTool
             LogHelper.Close();
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (!SaveHelper.CheckUnsavedChangesMessage())
+            // Check if auto-save on close is enabled
+            if (SettingsHelper.Instance.AutoSaveOnClose)
             {
-                e.Cancel = true;
+                // Auto-save if there are unsaved changes
+                if (SaveHelper.HasUnsavedChanges)
+                {
+                    e.Cancel = true; // Cancel the close temporarily
+                    await SaveHelper.SaveAsync();
+                    
+                    // Close the window after save is complete
+                    Application.Current.Dispatcher.Invoke(() => 
+                    {
+                        // Temporarily disable auto-save to prevent loop
+                        var tempAutoSave = SettingsHelper.Instance.AutoSaveOnClose;
+                        SettingsHelper.Instance.AutoSaveOnClose = false;
+                        this.Close();
+                        SettingsHelper.Instance.AutoSaveOnClose = tempAutoSave;
+                    });
+                }
+            }
+            else
+            {
+                // Show confirmation prompt if auto-save is disabled
+                if (!SaveHelper.CheckUnsavedChangesMessage())
+                {
+                    e.Cancel = true;
+                }
             }
         }
 

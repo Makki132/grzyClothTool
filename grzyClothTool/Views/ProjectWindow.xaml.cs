@@ -374,16 +374,90 @@ namespace grzyClothTool.Views
         }
 
         // New button handlers
-        private void ImportPackage_Click(object sender, RoutedEventArgs e)
+        private async void ImportPackage_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Implement import package functionality
-            LogHelper.Log("Import package clicked");
+            await MainWindow.Instance.ImportProjectAsync(false);
         }
 
-        private void Add_Click(object sender, RoutedEventArgs e)
+        private async void Add_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Implement generic add functionality
-            LogHelper.Log("Add clicked");
+            // Add with automatic gender detection for unisex clothing
+            OpenFolderDialog folder = new()
+            {
+                Title = "Select a folder containing drawable files (mixed male/female supported)",
+                Multiselect = false
+            };
+
+            if (folder.ShowDialog() == true)
+            {
+                ProgressHelper.Start("Started loading drawables with gender detection");
+
+                var files = Directory.GetFiles(folder.FolderName, "*.ydd", SearchOption.AllDirectories)
+                    .OrderBy(f => Path.GetFileName(f))
+                    .ToArray();
+
+                if (files.Length == 0)
+                {
+                    LogHelper.Log("No .ydd files found in the selected folder", LogType.Warning);
+                    ProgressHelper.Stop("No files found", false);
+                    return;
+                }
+
+                int maleCount = 0;
+                int femaleCount = 0;
+
+                foreach (var file in files)
+                {
+                    var fileName = Path.GetFileNameWithoutExtension(file).ToLower();
+                    
+                    // Detect gender from filename patterns
+                    // Common patterns: _m, _male, ^m_freemode, _f, _female, ^f_freemode
+                    Enums.SexType detectedGender;
+                    
+                    if (fileName.Contains("_m_") || fileName.Contains("_male") || 
+                        fileName.StartsWith("m_") || fileName.EndsWith("_m") ||
+                        fileName.Contains("mp_m_"))
+                    {
+                        detectedGender = Enums.SexType.male;
+                        maleCount++;
+                    }
+                    else if (fileName.Contains("_f_") || fileName.Contains("_female") || 
+                             fileName.StartsWith("f_") || fileName.EndsWith("_f") ||
+                             fileName.Contains("mp_f_"))
+                    {
+                        detectedGender = Enums.SexType.female;
+                        femaleCount++;
+                    }
+                    else
+                    {
+                        // If no clear gender marker, try to detect from parent folder name
+                        var parentFolder = Path.GetFileName(Path.GetDirectoryName(file))?.ToLower();
+                        if (parentFolder?.Contains("male") == true || parentFolder?.Contains("_m") == true)
+                        {
+                            detectedGender = Enums.SexType.male;
+                            maleCount++;
+                        }
+                        else if (parentFolder?.Contains("female") == true || parentFolder?.Contains("_f") == true)
+                        {
+                            detectedGender = Enums.SexType.female;
+                            femaleCount++;
+                        }
+                        else
+                        {
+                            // Default to male if no gender detected
+                            LogHelper.Log($"Could not detect gender for '{fileName}', defaulting to male", LogType.Warning);
+                            detectedGender = Enums.SexType.male;
+                            maleCount++;
+                        }
+                    }
+
+                    await MainWindow.AddonManager.AddDrawables([file], detectedGender);
+                }
+
+                var message = $"Added {files.Length} drawable(s) ({maleCount} male, {femaleCount} female) with automatic gender detection in {{0}}";
+                ProgressHelper.Stop(message, true);
+                SaveHelper.SetUnsavedChanges(true);
+            }
         }
     }
 }

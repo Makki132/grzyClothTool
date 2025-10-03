@@ -68,6 +68,15 @@
                 VerticalAlignment="Top" 
                 Margin="10,10,10,0"
                 IsChecked="{Binding SplitAddons, Mode=TwoWay}"/>
+
+            <c:ModernLabelTextBox 
+                x:Name="orderValue"
+                Label="Order value (SP/RageMP)"
+                Margin="15,15,15,0"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Stretch"
+                Text="{Binding OrderValue, Mode=TwoWay}"
+                ToolTip="Sets the load order value in setup2.xml for Singleplayer/RageMP. Use different values (e.g. 1000, 2000) for multiple clothing packs." />
         </StackPanel>
 
         <Grid Grid.Row="1" Margin="15,5,15,5" >

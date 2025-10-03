@@ -118,5 +118,17 @@ namespace grzyClothTool.Properties {
                 this["MarkNewDrawables"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AutoSaveOnClose {
+            get {
+                return ((bool)(this["AutoSaveOnClose"]));
+            }
+            set {
+                this["AutoSaveOnClose"] = value;
+            }
+        }
     }
 }
