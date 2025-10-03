@@ -31,17 +31,27 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <GroupBox Style="{StaticResource FixedGroupBox}" Header="Did You Know?" Grid.Row="0" Margin="2">
-                <TextBlock Text="{Binding RandomDidYouKnow}" FontSize="14" FontStyle="Italic" Padding="5" Margin="5" TextWrapping="WrapWithOverflow"  />
+            <GroupBox Style="{StaticResource FixedGroupBox}" Header="Did You Know?" Grid.Row="0" Margin="8">
+                <GroupBox.Effect>
+                    <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.15" />
+                </GroupBox.Effect>
+                <Border Background="{DynamicResource Brush50}" BorderBrush="{DynamicResource Brush200}" BorderThickness="1" CornerRadius="4" Padding="12">
+                    <TextBlock Text="{Binding RandomDidYouKnow}" FontSize="14" FontStyle="Italic" TextWrapping="WrapWithOverflow" Foreground="{DynamicResource Brush900}" />
+                </Border>
             </GroupBox>
 
             <!-- Modernized Changelog Section -->
-            <GroupBox Style="{StaticResource FixedGroupBox}" Header="Changelog" Grid.Row="1" Margin="2">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8" Background="{DynamicResource Brush50}">
-                    <StackPanel x:Name="ChangelogContent">
-                        <!-- Changelog content will be populated in code-behind -->
-                    </StackPanel>
-                </ScrollViewer>
+            <GroupBox Style="{StaticResource FixedGroupBox}" Header="Changelog" Grid.Row="1" Margin="8">
+                <GroupBox.Effect>
+                    <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.15" />
+                </GroupBox.Effect>
+                <Border Background="{DynamicResource Brush50}" BorderBrush="{DynamicResource Brush200}" BorderThickness="1" CornerRadius="4">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
+                        <StackPanel x:Name="ChangelogContent">
+                            <!-- Changelog content will be populated in code-behind -->
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
             </GroupBox>
 
         </Grid>
