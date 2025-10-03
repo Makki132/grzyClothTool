@@ -15,6 +15,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
+using System.Windows.Media;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using Path = System.IO.Path;
 using UserControl = System.Windows.Controls.UserControl;
@@ -318,17 +319,58 @@ namespace grzyClothTool.Views
         private void SearchBox_TextChanged(object sender, RoutedEventArgs e)
         {
             var searchBox = sender as SearchBox;
-            var searchText = searchBox?.SearchText?.ToLower() ?? string.Empty;
+            var searchText = searchBox?.SearchText ?? string.Empty;
 
             if (MainWindow.AddonManager?.SelectedAddon?.Drawables == null)
                 return;
 
-            // TODO: Implement filtering logic
-            // For now, just log the search
-            if (!string.IsNullOrEmpty(searchText))
+            // Find the DrawableList control in the current tab and apply the filter
+            var tabControl = FindName("drawableSearchBox");
+            if (tabControl != null)
             {
-                LogHelper.Log($"Searching for: {searchText}");
+                var activeTab = GetSelectedTabContent();
+                if (activeTab != null)
+                {
+                    var drawableList = FindVisualChild<DrawableList>(activeTab);
+                    if (drawableList != null)
+                    {
+                        drawableList.SearchText = searchText;
+                    }
+                }
             }
+        }
+
+        // Helper method to get the content of the selected tab
+        private ContentPresenter GetSelectedTabContent()
+        {
+            var tabControl = FindVisualChild<System.Windows.Controls.TabControl>(this);
+            if (tabControl != null && tabControl.SelectedIndex >= 0)
+            {
+                return tabControl.Template.FindName("PART_SelectedContentHost", tabControl) as ContentPresenter;
+            }
+            return null;
+        }
+
+        // Helper method to find a child of a specific type in the visual tree
+        private static T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null) return null;
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T typedChild)
+                {
+                    return typedChild;
+                }
+
+                var result = FindVisualChild<T>(child);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            return null;
         }
 
         // New button handlers

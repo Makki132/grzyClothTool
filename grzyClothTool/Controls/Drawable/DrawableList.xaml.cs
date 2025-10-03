@@ -35,11 +35,50 @@ namespace grzyClothTool.Controls
             set { SetValue(ItemsSourceProperty, value); }
         }
 
+        private string _searchText = string.Empty;
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                _searchText = value;
+                ApplyFilter();
+            }
+        }
+
         public object DrawableListSelectedValue => MyListBox.SelectedValue;
 
         public DrawableList()
         {
             InitializeComponent();
+        }
+
+        private void ApplyFilter()
+        {
+            var groupedDrawables = (System.Windows.Data.CollectionViewSource)Resources["GroupedDrawables"];
+            if (groupedDrawables?.View == null) return;
+
+            if (string.IsNullOrWhiteSpace(_searchText))
+            {
+                groupedDrawables.View.Filter = null;
+            }
+            else
+            {
+                var searchLower = _searchText.ToLower();
+                groupedDrawables.View.Filter = obj =>
+                {
+                    if (obj is GDrawable drawable)
+                    {
+                        // Match against drawable name, formatted display name, or type
+                        return drawable.Name?.ToLower().Contains(searchLower) == true ||
+                               drawable.FormattedDisplayName?.ToLower().Contains(searchLower) == true ||
+                               drawable.TypeName?.ToLower().Contains(searchLower) == true;
+                    }
+                    return false;
+                };
+            }
+
+            groupedDrawables.View.Refresh();
         }
 
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
