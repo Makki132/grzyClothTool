@@ -252,7 +252,7 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="{x:Type GroupItem}">
-                                        <Expander IsExpanded="True" Background="Transparent" BorderThickness="0" Margin="0,2,0,0">
+                                        <Expander IsExpanded="False" Background="Transparent" BorderThickness="0" Margin="0,2,0,0">
                                             <Expander.Style>
                                                 <Style TargetType="Expander">
                                                     <Setter Property="Template">

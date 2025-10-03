@@ -58,17 +58,25 @@ namespace grzyClothTool.Views
         {
             ChangelogContent.Children.Clear();
 
+            // Version 1.0.6 - Bug Fixes and Quality of Life
+            AddChangelogVersion("1.0.6", "Bug Fixes and Quality of Life", new List<string>
+            {
+                "Fixed search behavior - categories no longer auto-expand when searching",
+                "Categories now remain in their user-set expanded/collapsed state",
+                "Improved search user experience"
+            });
+
             // Version 1.0.5 - UI Improvements and New Features
             AddChangelogVersion("1.0.5", "UI Improvements and New Features", new List<string>
             {
-                "Added functional Error List window with real-time error/warning tracking",
-                "Implemented search/filter functionality for drawables with live filtering",
-                "Fixed Delete texture button to properly display text alongside icon",
-                "Fixed button cutoff issues at bottom of texture list",
-                "Added light box styling to Home screen (Did You Know and Changelog)",
-                "Improved GroupBox spacing and layout on right panel",
-                "Removed Patreon account button from Settings",
-                "Enhanced overall UI consistency and polish"
+                "Fixed 'No errors or warnings' message centering in Error List window",
+                "Fixed texture panel layout - moved upward for better button visibility",
+                "Added toggleable auto-save on close functionality (enabled by default)",
+                "Added configurable order value for SP/RageMP builds in setup2.xml",
+                "Implemented Import Package button functionality",
+                "Added automatic gender detection for Add button (filename/folder based)",
+                "Fixed TabControl ambiguous reference errors",
+                "Updated version display to 1.0.5"
             });
 
             // Version 1.0.4 - UI Modernization
