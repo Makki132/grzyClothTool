@@ -87,12 +87,16 @@ public class BuildResourceHelper
             Directory.CreateDirectory(dir);
         }
 
-        var fileOperations = new List<Task>();
+        var streamFolder = Path.Combine(_buildPath, "stream");
+        Directory.CreateDirectory(streamFolder);
+
+        var fileOperations = new List<Task>
+        {
+            File.WriteAllBytesAsync(Path.Combine(streamFolder, $"{pedName}_{projectName}.ymt"), ymtBytes)
+        };
 
         foreach (var group in drawableGroups)
         {
-            var ymtPath = Path.Combine(_buildPath, "stream", $"{pedName}_{projectName}.ymt");
-            fileOperations.Add(File.WriteAllBytesAsync(ymtPath, ymtBytes));
 
             foreach (var d in group)
             {
@@ -177,12 +181,13 @@ public class BuildResourceHelper
         int completedTasks = 0;
         int lastReportedProgress = 0;
 
-        var runningTasks = fileOperations.ToList(); // Start all file operations
-        int totalTasks = runningTasks.Count;
+        var runningTasks = fileOperations.ToList();
 
-        while (completedTasks < totalTasks)
+        while (runningTasks.Count > 0)
         {
-            Task finishedTask = await Task.WhenAny(runningTasks);
+            var finishedTask = await Task.WhenAny(runningTasks);
+            runningTasks.Remove(finishedTask);
+            await finishedTask;
             completedTasks++;
 
             if (completedTasks - lastReportedProgress >= 20 || runningTasks.Count == 0)
@@ -259,20 +264,23 @@ public class BuildResourceHelper
         contentBuilder.AppendLine();
         contentBuilder.AppendLine("files {");
 
-        var filesSectionBuilder = new StringBuilder();
-        filesSectionBuilder.Append(string.Join(",\n  ", metaFiles.Select(f => $"'{f}'")));
+        var fileEntries = new List<string>();
+        fileEntries.AddRange(metaFiles.Select(f => $"'{f}'"));
 
         if (firstPersonFiles.Count > 0)
         {
-            filesSectionBuilder.Append($",\n  'first_person_alternates_{_projectName}.meta'");
+            fileEntries.Add($"'first_person_alternates_{_projectName}.meta'");
         }
 
         if (creatureMetadataFiles.Count > 0)
         {
-            filesSectionBuilder.Append($",\n  {string.Join(",\n  ", creatureMetadataFiles.Select(f => $"'{f}'"))}");
+            fileEntries.AddRange(creatureMetadataFiles.Select(f => $"'{f}'"));
         }
 
-        contentBuilder.AppendLine($"  {filesSectionBuilder}");
+        if (fileEntries.Count > 0)
+        {
+            contentBuilder.AppendLine($"  {string.Join(",\n  ", fileEntries)}");
+        }
 
         contentBuilder.AppendLine("}");
         contentBuilder.AppendLine();
