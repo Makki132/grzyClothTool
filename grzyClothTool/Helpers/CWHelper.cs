@@ -82,19 +82,21 @@ public static class CWHelper
             RpfFileEntry rpf = RpfFile.CreateResourceFileEntry(ref data, 0);
             var decompressedData = ResourceBuilder.Decompress(data);
             YddFile ydd = RpfFile.GetFile<YddFile>(rpf, decompressedData);
-            var drawable = ydd.Drawables.First();
-            drawable.Name = Path.GetFileNameWithoutExtension(d.Name);
-
-            drawable.IsHairScaleEnabled = d.EnableHairScale;
-            if (drawable.IsHairScaleEnabled)
+            foreach (var drawable in ydd.Drawables)
             {
-                drawable.HairScaleValue = d.HairScaleValue;
-            }
+                drawable.Name = Path.GetFileNameWithoutExtension(d.Name);
 
-            drawable.IsHighHeelsEnabled = d.EnableHighHeels;
-            if (drawable.IsHighHeelsEnabled)
-            {
-                drawable.HighHeelsValue = d.HighHeelsValue / 10;
+                drawable.IsHairScaleEnabled = d.EnableHairScale;
+                if (drawable.IsHairScaleEnabled)
+                {
+                    drawable.HairScaleValue = d.HairScaleValue;
+                }
+
+                drawable.IsHighHeelsEnabled = d.EnableHighHeels;
+                if (drawable.IsHighHeelsEnabled)
+                {
+                    drawable.HighHeelsValue = d.HighHeelsValue / 10;
+                }
             }
 
             return ydd;
